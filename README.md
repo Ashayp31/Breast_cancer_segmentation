@@ -20,7 +20,7 @@ sh build.sh
 Activate the virtual environment:
 
 ```
-source /cs/scratch/agj6/tf2/venv/bin/activate
+source /Breast-Cancer-Detection-Code/tf2/venv/bin/activate
 ```
 
 `cd` into the `src` directory and run the code:
