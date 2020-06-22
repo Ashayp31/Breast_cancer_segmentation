@@ -2,6 +2,12 @@
 
 ## Usage
 
+Clone the repository:
+
+```
+git clone https://github.com/Adamouization/Breast-Cancer-Detection-Code
+```
+
 `cd` into the `code` directory and create a new virtual environment:
 
 ```
