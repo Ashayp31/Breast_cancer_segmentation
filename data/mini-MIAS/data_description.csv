@@ -1,4 +1,3 @@
-Reference number,Background tissue,Class of abnormality present,Abnormality Severity,x coordinate of abnormality centre,Y coordinate of abnormality centre,Approx radius of circle enclosing abnormality (pixels)
 mdb001,G ,CIRC ,B ,535,425,197
 mdb002,G ,CIRC ,B ,522,280,69
 mdb003,D ,NORM ,,,,
@@ -217,7 +216,7 @@ mdb212,G ,CALC ,B ,687,882,3
 mdb213,G ,CALC ,M ,547,520,45
 mdb214,G ,CALC ,B ,582,916,11
 mdb215,D ,NORM ,,,,
-mdb216,D ,CALC ,M ,*NOT,E 3*, 
+mdb216,D ,CALC ,M ,*NOT,E 3*,
 mdb217,G ,NORM ,,,,
 mdb218,G ,CALC ,B ,519,629,8
 mdb219,G ,CALC ,B ,546,756,29
