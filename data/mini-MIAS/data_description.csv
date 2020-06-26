@@ -2,7 +2,6 @@ mdb001,G ,CIRC ,B ,535,425,197
 mdb002,G ,CIRC ,B ,522,280,69
 mdb003,D ,NORM ,,,,
 mdb004,D ,NORM ,,,,
-mdb005,F ,CIRC ,B ,477,133,30
 mdb005,F ,CIRC ,B ,500,168,26
 mdb006,F ,NORM ,,,,
 mdb007,G ,NORM ,,,,
@@ -131,7 +130,6 @@ mdb129,D ,NORM ,,,,
 mdb130,D ,ARCH ,M ,220,552,28
 mdb131,F ,NORM ,,,,
 mdb132,F ,CIRC ,B ,252,788,52
-mdb132,F ,CIRC ,B ,335,766,18
 mdb133,F ,NORM ,,,,
 mdb134,F ,MISC ,M ,469,728,49
 mdb135,F ,NORM ,,,,
@@ -144,7 +142,6 @@ mdb141,F ,CIRC ,M ,470,759,29
 mdb142,F ,CIRC ,B ,347,636,26
 mdb143,F ,NORM ,,,,
 mdb144,F ,MISC ,B ,233,994,29
-mdb144,F ,MISC ,M ,313,540,27
 mdb145,D ,SPIC ,B ,669,543,49
 mdb146,D ,NORM ,,,,
 mdb147,F ,NORM ,,,,
@@ -224,11 +221,8 @@ mdb220,G ,NORM ,,,,
 mdb221,D ,NORM ,,,,
 mdb222,D ,CALC ,B ,398,427,17
 mdb223,D ,CALC ,B ,523,482,29
-mdb223,D ,CALC ,B ,591,529,6
 mdb224,D ,NORM ,,,,
 mdb225,D ,NORM ,,,,
-mdb226,D ,CALC ,B ,287,610,7
-mdb226,D ,CALC ,B ,329,550,25
 mdb226,D ,CALC ,B ,531,721,8
 mdb227,G ,CALC ,B ,504,467,9
 mdb228,G ,NORM ,,,,
@@ -242,7 +236,6 @@ mdb235,D ,NORM ,,,,
 mdb236,D ,CALC ,B ,276,824,14
 mdb237,F ,NORM ,,,,
 mdb238,F ,CALC ,M ,522,553,17
-mdb239,D ,CALC ,M ,645,755,40
 mdb239,D ,CALC ,M ,567,808,25
 mdb240,D ,CALC ,B ,643,614,23
 mdb241,D ,CALC ,M ,453,678,38
@@ -254,7 +247,6 @@ mdb246,F ,NORM ,,,,
 mdb247,F ,NORM ,,,,
 mdb248,F ,CALC ,B ,378,601,10
 mdb249,D ,CALC ,M ,544,508,48
-mdb249,D ,CALC ,M ,575,639,64
 mdb250,D ,NORM ,,,,
 mdb251,F ,NORM ,,,,
 mdb252,F ,CALC ,B ,439,367,23
