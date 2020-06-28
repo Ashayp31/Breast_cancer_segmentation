@@ -7,14 +7,19 @@ from tensorflow.keras.layers import Concatenate
 from tensorflow.python.keras.layers import Conv2D, MaxPooling2D
 from tensorflow.python.keras import Sequential
 
-## Needed to download pre-trained weights for imagenet
+
+# Needed to download pre-trained weights for imagenet
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
-
-## Function to create basic VGG19 model pretrained with custom FC layers
 def generate_vgg_model_basic(input_shape, classes_len):
+    """
+    Function to create VGG19 model pretrained with custom FC Layers
+    :param input_shape: image size
+    :param classes_len: number of classes
+    :return: model
+    """
     # Reconfigure single channel input into a greyscale 3 channel input
     img_input = Input(shape=(input_shape[0], input_shape[1], 1))
     img_conc = Concatenate()([img_input, img_input, img_input])
@@ -43,8 +48,13 @@ def generate_vgg_model_basic(input_shape, classes_len):
     return model
 
 
-## Function to generate VGG19 model adapted with extra convolutional layers due to larger image size
 def generate_vgg_model_adv(input_shape, classes_len):
+    """
+    Function to create VGG19 model with an extra convolutional layer with extra filters due to larger images
+    :param input_shape: image size
+    :param classes_len: number of classes
+    :return: model
+    """
     # Reconfigure single channel input into a greyscale 3 channel input
     img_input = Input(shape=(input_shape[0], input_shape[1], 1))
     img_conc = Concatenate()([img_input, img_input, img_input])
@@ -67,7 +77,7 @@ def generate_vgg_model_adv(input_shape, classes_len):
 
     model.add(MaxPooling2D((2, 2), strides=(2, 2)))
 
-    ## add fully connected layers for classification from features
+    # add fully connected layers for classification from features
     # Flatten
     model.add(Flatten())
 
@@ -78,9 +88,7 @@ def generate_vgg_model_adv(input_shape, classes_len):
     # Possible dropout for regularisation can be added later and experimented with
     # model.add(Dropout(0.1, name='Dropout_Regularization'))
 
-    ##Final output layer
+    # Final output layer
     model.add(Dense(classes_len, activation='softmax', name='Output'))
-
-    # for cnn_block_layer in model.layers[0].layers:
 
     return model

@@ -14,8 +14,8 @@ input_shape = [512,512]
 # CLASSES = 3
 CLASSES = 10
 BATCH_SIZE = 10
-EPOCH_1 = 20
-EPOCH_2 = 10
+EPOCH_1 = 2
+EPOCH_2 = 2
 
 # Create CNN model
 if model_type == "basic":
@@ -27,7 +27,7 @@ else:
 # Freeze VGG19 pre-trained layers
 model.layers[0].trainable = False
 
-train_x, train_y, val_x, val_y, test_x, test_y, trainAug, valAug = generate_all_data(input_shape[0], input_shape[1], CLASSES, 150)
-model = train_network(model, trainAug, valAug, train_x, train_y, val_x, val_y, BATCH_SIZE, EPOCH_1, EPOCH_2)
+train_x, train_y, val_x, val_y, test_x, test_y, trainAug, valAug = generate_all_data()
+model = train_network(model, train_x, train_y, val_x, val_y, BATCH_SIZE, EPOCH_1, EPOCH_2)
 y_pred = test_network(model, test_x)
 print(y_pred)
