@@ -3,7 +3,7 @@ import argparse
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 import config
-from data_preprocessing import import_dataset, train_test_split_dataset
+from data_preprocessing import import_dataset, dataset_stratified_split
 
 
 def main() -> None:
@@ -16,8 +16,9 @@ def main() -> None:
     # Import dataset.
     images, labels = import_dataset(data_dir="../data/{}/images_processed".format(config.dataset))
 
-    # Split dataset.
-    train_X, test_X, train_Y, test_Y = train_test_split_dataset(images, labels)
+    # Split dataset into training/test/validation sets (60%/20%/20% split).
+    X_train, X_test, y_train, y_test = dataset_stratified_split(split=0.20, dataset=images, labels=labels)
+    X_train, X_val, y_train, y_val = dataset_stratified_split(split=0.25, dataset=X_train, labels=y_train)
 
     # Construct the training image generator for data augmentation.
     augmentation = ImageDataGenerator(

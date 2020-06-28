@@ -59,18 +59,19 @@ def encode_labels(labels_list: np.ndarray) -> np.ndarray:
     return to_categorical(labels)
 
 
-def train_test_split_dataset(dataset: np.ndarray, labels: np.ndarray) -> \
+def dataset_stratified_split(split: float, dataset: np.ndarray, labels: np.ndarray) -> \
         (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """
     Partition the data into training and testing splits using 80%/20% split. Stratify the split to keep the same class
     distribution in both sets.
+    :param split: Dataset split (e.g. if 0.2 is passed, then the dataset is split in 80%/20%).
     :param dataset: The dataset of pre-processed images.
     :param labels: The list of labels.
     :return: the training and testing sets split in input (X) and label (Y).
     """
     train_X, test_X, train_Y, test_Y = train_test_split(dataset,
                                                         labels,
-                                                        test_size=0.20,
+                                                        test_size=split,
                                                         stratify=labels,
-                                                        random_state=111)
+                                                        random_state=config.RANDOM_SEED)
     return train_X, test_X, train_Y, test_Y
