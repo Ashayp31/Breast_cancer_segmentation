@@ -1,9 +1,11 @@
 import argparse
+import time
 
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 import config
 from data_preprocessing import import_dataset, dataset_stratified_split
+from utils import print_runtime
 
 
 def main() -> None:
@@ -12,6 +14,9 @@ def main() -> None:
     :return: None.
     """
     parse_command_line_arguments()
+
+    # Start recording time.
+    start_time = time.time()
 
     # Import dataset.
     images, labels = import_dataset(data_dir="../data/{}/images_processed".format(config.dataset))
@@ -29,6 +34,9 @@ def main() -> None:
         shear_range=0.15,
         horizontal_flip=True,
         fill_mode="nearest")
+
+    # Print training runtime.
+    print_runtime("Data import & pre-processing", round(time.time() - start_time, 2))
 
 
 def parse_command_line_arguments() -> None:
