@@ -27,7 +27,7 @@ def import_dataset(data_dir: str) -> (np.ndarray, np.ndarray):
         labels.append(image_path.split(os.path.sep)[-2])  # Extract label from path.
 
     # Convert the data and labels lists to NumPy arrays.
-    dataset = np.array(dataset, dtype="float32")
+    dataset = np.array(dataset, dtype="float32")  # Convert images to a batch.
     labels = np.array(labels)
 
     # Encode labels.
@@ -39,16 +39,14 @@ def import_dataset(data_dir: str) -> (np.ndarray, np.ndarray):
 def preprocess_image(image_path: str) -> np.ndarray:
     """
     Pre-processing steps:
-        * Load the input image
-        * Resize it to 224x224 pixels for the VGG19 CNN model
-        * Transform it to an array format
-        * Apply VGG19 pre-processing to it.
+        * Load the input image in grayscale mode (1 channel),
+        * resize it to 224x224 pixels for the VGG19 CNN model,
+        * transform it to an array format.
     :param image_path: The path to the image to preprocess.
     :return: The pre-processed image in NumPy array format.
     """
-    image = load_img(image_path, target_size=(VGG_IMG_HEIGHT, VGG_IMG_WIDTH))
+    image = load_img(image_path, color_mode="grayscale", target_size=(VGG_IMG_HEIGHT, VGG_IMG_WIDTH))
     image = img_to_array(image)
-    image = preprocess_input(image)  # Preprocess function from VGG19 CNN model.
     return image
 
 
@@ -63,7 +61,8 @@ def encode_labels(labels_list: np.ndarray) -> np.ndarray:
     return to_categorical(labels)
 
 
-def train_test_split_dataset(dataset, labels):
+def train_test_split_dataset(dataset: np.ndarray, labels: np.ndarray) -> \
+        (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """
     Partition the data into training and testing splits using 80%/20% split. Stratify the split to keep the same class
     distribution in both sets.
