@@ -14,8 +14,8 @@ input_shape = [512,512]
 # CLASSES = 3
 CLASSES = 10
 BATCH_SIZE = 10
-EPOCH_1 = 3
-EPOCH_2 = 2
+EPOCH_1 = 20
+EPOCH_2 = 10
 
 # Create CNN model
 if model_type == "basic":

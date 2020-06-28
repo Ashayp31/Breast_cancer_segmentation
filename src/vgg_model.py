@@ -38,7 +38,7 @@ def generate_vgg_model_basic(input_shape, classes_len):
     # model.add(Dropout(0.1, name='Dropout_Regularization'))
 
     # Final output layer
-    model.add(Dense(classes_len, activation='sigmoid', name='Output'))
+    model.add(Dense(classes_len, activation='softmax', name='Output'))
 
     return model
 
@@ -79,7 +79,7 @@ def generate_vgg_model_adv(input_shape, classes_len):
     # model.add(Dropout(0.1, name='Dropout_Regularization'))
 
     ##Final output layer
-    model.add(Dense(classes_len, activation='sigmoid', name='Output'))
+    model.add(Dense(classes_len, activation='softmax', name='Output'))
 
     # for cnn_block_layer in model.layers[0].layers:
 
