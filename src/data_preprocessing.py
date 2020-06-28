@@ -4,36 +4,34 @@ from imutils import paths
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-from tensorflow.keras.applications.vgg19 import preprocess_input
 from tensorflow.keras.preprocessing.image import img_to_array, load_img
 from tensorflow.keras.utils import to_categorical
 
-VGG_IMG_HEIGHT = 224
-VGG_IMG_WIDTH = 224
+import config
 
 
 def import_dataset(data_dir: str) -> (np.ndarray, np.ndarray):
     """
     Import the dataset by pre-processing the images and encoding the labels.
-    :return: Two NumPy arrays, one for processed images and one for the encoded labels.
+    :return: Two NumPy arrays, one for the processed images and one for the encoded labels.
     """
     # Initialise variables.
-    dataset = list()
+    images = list()
     labels = list()
 
     # Loop over the image paths and update the data and labels lists with the pre-processed images & labels.
     for image_path in list(paths.list_images(data_dir)):
-        dataset.append(preprocess_image(image_path))
+        images.append(preprocess_image(image_path))
         labels.append(image_path.split(os.path.sep)[-2])  # Extract label from path.
 
     # Convert the data and labels lists to NumPy arrays.
-    dataset = np.array(dataset, dtype="float32")  # Convert images to a batch.
+    images = np.array(images, dtype="float32")  # Convert images to a batch.
     labels = np.array(labels)
 
     # Encode labels.
     labels = encode_labels(labels)
 
-    return dataset, labels
+    return images, labels
 
 
 def preprocess_image(image_path: str) -> np.ndarray:
@@ -45,7 +43,7 @@ def preprocess_image(image_path: str) -> np.ndarray:
     :param image_path: The path to the image to preprocess.
     :return: The pre-processed image in NumPy array format.
     """
-    image = load_img(image_path, color_mode="grayscale", target_size=(VGG_IMG_HEIGHT, VGG_IMG_WIDTH))
+    image = load_img(image_path, color_mode="grayscale", target_size=(config.VGG_IMG_HEIGHT, config.VGG_IMG_WIDTH))
     image = img_to_array(image)
     return image
 
