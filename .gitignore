@@ -1,6 +1,8 @@
 # Local files
 
-data/
+data/mini-MIAS/images_original
+data/mini-MIAS/images_processed
+.idea
 
 # ______________________________________________________________________________________________________________________
 

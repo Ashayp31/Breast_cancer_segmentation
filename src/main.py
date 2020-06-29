@@ -1,52 +1,62 @@
-import socket
+import argparse
+import time
 
-import tensorflow as tf
-# import torch
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+import config
+from data_preprocessing import import_dataset, dataset_stratified_split
+from utils import print_runtime
 
 
 def main() -> None:
-    print("Running sanity checks for GPU through PyTorch and Tensorflow")
-    if socket.gethostname() == "pc5-026-l":
-        test_gpu()
-    else:
-        print("Running sanity checks for PyTorch & Tensorflow")
-        basic_import_test()
+    """
+    Program entry point. Parses command line arguments to decide which dataset and model to use.
+    :return: None.
+    """
+    parse_command_line_arguments()
+
+    # Start recording time.
+    start_time = time.time()
+
+    # Import dataset.
+    images, labels = import_dataset(data_dir="../data/{}/images_processed".format(config.dataset))
+
+    # Split dataset into training/test/validation sets (60%/20%/20% split).
+    X_train, X_test, y_train, y_test = dataset_stratified_split(split=0.20, dataset=images, labels=labels)
+    X_train, X_val, y_train, y_val = dataset_stratified_split(split=0.25, dataset=X_train, labels=y_train)
+
+    # Construct the training image generator for data augmentation.
+    augmentation = ImageDataGenerator(
+        rotation_range=20,
+        zoom_range=0.15,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        shear_range=0.15,
+        horizontal_flip=True,
+        fill_mode="nearest")
+
+    # Print training runtime.
+    print_runtime("Data import & pre-processing", round(time.time() - start_time, 2))
 
 
-def basic_import_test() -> None:
-    # PyTorch test
-    # x = torch.rand(5, 3)
-    # print(x)
-
-    # TensorFlow test
-    mnist = tf.keras.datasets.mnist
-    (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    x_train, x_test = x_train / 255.0, x_test / 255.0
-    model = tf.keras.models.Sequential([
-        tf.keras.layers.Flatten(input_shape=(28, 28)),
-        tf.keras.layers.Dense(128, activation='relu'),
-        tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Dense(10, activation='softmax')
-    ])
-    model.compile(optimizer='adam',
-                  loss='sparse_categorical_crossentropy',
-                  metrics=['accuracy'])
-    model.fit(x_train, y_train, epochs=5)
-    model.evaluate(x_test, y_test)
-
-
-def test_gpu() -> None:
-    # PyTorch
-    # print("torch.cuda.current_device() ", torch.cuda.current_device())
-    # print("torch.cuda.device(0) ", torch.cuda.device(0))
-    # print("torch.cuda.device_count() ", torch.cuda.device_count())
-    # print("torch.cuda.get_device_name(0) ", torch.cuda.get_device_name(0))
-    # print("torch.cuda.is_available() ", torch.cuda.is_available())
-
-    # Tensorflow
-    print("GPUs Available: ", tf.config.experimental.list_physical_devices('GPU'))
-    print("-----------------------")
-    print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
+def parse_command_line_arguments() -> None:
+    """
+    Parse command line arguments and save their value in config.py.
+    :return: None
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-d", "--dataset",
+                        default="mini-MIAS",
+                        required=True,
+                        help="The dataset to use. Must be either 'mini-MIAS' or 'CBIS-DDMS'."
+                        )
+    parser.add_argument("-v", "--verbose",
+                        action="store_true",
+                        help="Verbose mode: include this flag additional print statements for debugging purposes."
+                        )
+    args = parser.parse_args()
+    config.dataset = args.dataset
+    config.verbose_mode = args.verbose
 
 
 if __name__ == '__main__':
