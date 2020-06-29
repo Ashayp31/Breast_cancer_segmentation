@@ -10,11 +10,11 @@ def main() -> None:
     :return: None
     """
     KEY_LABEL = 3
-    df = pd.read_csv("../data/mini-MIAS/data_description.csv", header=None, index_col=0)
+    df = pd.read_csv("../../data/mini-MIAS/data_description.csv", header=None, index_col=0)
     df[KEY_LABEL].fillna('N', inplace=True)  # Empty values correspond to normal cases ('M'=malignant, 'B'=benign).
     df[3].str.strip()  # Strip leading and trailing spaces in label column.
 
-    for img_pgm in os.listdir("../data/mini-MIAS/images_original"):
+    for img_pgm in os.listdir("../../data/mini-MIAS/images_original"):
         if img_pgm.endswith(".pgm"):
             img = cv2.imread("../data/mini-MIAS/images_original/{}".format(img_pgm))
             img_name = img_pgm.split(".")[0]

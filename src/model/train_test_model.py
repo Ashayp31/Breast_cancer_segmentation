@@ -1,9 +1,9 @@
-from tensorflow.python.keras.callbacks import EarlyStopping, ReduceLROnPlateau
-from keras.optimizers import Adam
-from keras.losses import CategoricalCrossentropy
-from keras.metrics import CategoricalAccuracy
 import matplotlib.pyplot as plt
 import numpy as np
+from tensorflow.python.keras.callbacks import EarlyStopping, ReduceLROnPlateau
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.losses import CategoricalCrossentropy
+from tensorflow.keras.metrics import CategoricalAccuracy
 
 
 def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epochs2):
@@ -100,5 +100,5 @@ def plot_training_results(hist_input, plot_name):
     plt.xlabel("Epoch #")
     plt.ylabel("Loss/Accuracy")
     plt.legend(loc="lower left")
-    plt.savefig(plot_name)
+    plt.savefig("../../output/{}".format(plot_name))
     plt.show()

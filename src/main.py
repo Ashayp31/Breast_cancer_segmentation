@@ -4,7 +4,9 @@ import time
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 import config
-from data_preprocessing import import_dataset, dataset_stratified_split
+from data_manipulations.data_preprocessing import import_dataset, dataset_stratified_split
+from model.vgg_model import *
+from model.train_test_model import train_network, test_network
 from utils import print_runtime
 
 
@@ -35,6 +37,19 @@ def main() -> None:
         horizontal_flip=True,
         fill_mode="nearest")
 
+    # Create CNN model
+    if config.model == "basic":
+        model = generate_vgg_model_basic([config.VGG_IMG_WIDTH, config.VGG_IMG_HEIGHT], config.CLASSES)
+    else:
+        model = generate_vgg_model_adv([config.VGG_IMG_WIDTH, config.VGG_IMG_HEIGHT], config.CLASSES)
+
+    # Freeze VGG19 pre-trained layers
+    model.layers[0].trainable = False
+
+    model = train_network(model, X_train, y_train, X_val, y_val, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
+    y_pred = test_network(model, X_test)
+    print(y_pred)
+
     # Print training runtime.
     print_runtime("Data import & pre-processing", round(time.time() - start_time, 2))
 
@@ -49,6 +64,11 @@ def parse_command_line_arguments() -> None:
                         default="mini-MIAS",
                         required=True,
                         help="The dataset to use. Must be either 'mini-MIAS' or 'CBIS-DDMS'."
+                        )
+    parser.add_argument("-m", "--model",
+                        default="basic",
+                        required=True,
+                        help="The model to use. Must be either 'basic' or 'advanced'."
                         )
     parser.add_argument("-v", "--verbose",
                         action="store_true",

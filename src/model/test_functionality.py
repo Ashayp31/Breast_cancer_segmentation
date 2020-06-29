@@ -1,8 +1,6 @@
-from tensorflow.python.keras import Sequential
-
-from create_dummy_data import generate_all_data
-from train_test_model import train_network, test_network
-from vgg_model import generate_vgg_model_basic, generate_vgg_model_adv
+from other.create_dummy_data import generate_all_data
+from model.train_test_model import train_network, test_network
+from model.vgg_model import generate_vgg_model_basic, generate_vgg_model_adv
 
 
 ##Create model
@@ -27,7 +25,7 @@ else:
 # Freeze VGG19 pre-trained layers
 model.layers[0].trainable = False
 
-train_x, train_y, val_x, val_y, test_x, test_y, trainAug, valAug = generate_all_data()
+# train_x, train_y, val_x, val_y, test_x, test_y, trainAug, valAug = generate_all_data()
 model = train_network(model, train_x, train_y, val_x, val_y, BATCH_SIZE, EPOCH_1, EPOCH_2)
 y_pred = test_network(model, test_x)
 print(y_pred)
