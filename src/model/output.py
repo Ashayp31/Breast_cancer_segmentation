@@ -1,5 +1,5 @@
-import json
 
+import json
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -17,8 +17,8 @@ def plot_roc_curve(y_true: list, y_pred: list) -> None:
     :return: None.
     """
     # calculate fpr, tpr, and area under the curve(auc)
-    fpr, tpr, _ = roc_curve(np.argmax(y_true, axis=1), np.argmax(y_pred,
-                                                                 axis=1))  # transform y_true and y_pred from one-hot-encoding to the label-encoding.
+    fpr, tpr, _ = roc_curve(argmax(y_ture, axis=1), argmax(y_pred,
+                                                           axis=1))  # transform y_true and y_pred from one-hot-encoding to the label-encoding.
     roc_auc = auc(fpr, tpr)
 
     # plot
@@ -174,7 +174,9 @@ def evaluate(y_true: list, y_pred: list, label_encoder: LabelEncoder, dataset: s
     y_true_inv = label_encoder.inverse_transform(np.argmax(y_true, axis=1))
     y_pred_inv = label_encoder.inverse_transform(np.argmax(y_pred, axis=1))
 
-    accuracy = float('{:.4f}'.format(accuracy_score(y_true, y_pred)))  # calculate accuracy
+    y_pred_one_hot = to_categorical(np.argmax(y_pred, axis=1))
+
+    accuracy = float('{:.4f}'.format(accuracy_score(y_true_inv, y_pred_inv)))  # calculate accuracy
 
     print('accuracy = ', accuracy)
     print()
@@ -192,13 +194,13 @@ def evaluate(y_true: list, y_pred: list, label_encoder: LabelEncoder, dataset: s
 
     # plot roc curve
     if len(label_encoder.classes_) == 2:  # binary classification
-        plot_roc_curve(y_true, y_pred)
+        plot_roc_curve(y_true, y_pred_one_hot)
 
     elif len(label_encoder.classes_) >= 2:  # multi classification
-        plot_roc_curve_multiclasses(y_true, y_pred, label_encoder)
+        plot_roc_curve_multiclasses(y_true, y_pred_one_hot, label_encoder)
 
     # compare with other papers' result
-    with open('../other/other_results.json') as config_file:  # load other papers' result from json file
+    with open('other/other_results.json') as config_file:  # load other papers' result from json file
         data = json.load(config_file)
 
     df = pd.DataFrame.from_records(data[dataset][classification_type],
