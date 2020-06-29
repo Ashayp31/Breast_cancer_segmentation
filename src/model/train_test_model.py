@@ -100,5 +100,5 @@ def plot_training_results(hist_input, plot_name):
     plt.xlabel("Epoch #")
     plt.ylabel("Loss/Accuracy")
     plt.legend(loc="lower left")
-    plt.savefig("../../output/{}".format(plot_name))
+    plt.savefig("../output/{}".format(plot_name))
     plt.show()
