@@ -37,6 +37,8 @@ def plot_roc_curve(y_ture:list, y_pred:list) -> None:
     plt.ylabel('True Positive Rate')
     plt.title('Receiver Operating Characteristic')
     plt.legend(loc='lower right')
+    plot_name = 'Receiver Operating Characteristic.png'
+    plt.savefig(plot_name)
     plt.show()
 
     
@@ -106,6 +108,8 @@ def plot_roc_curve_multiclasses(y_ture: list, y_pred: list) -> None:
     plt.ylabel('True Positive Rate')
     plt.title('Receiver Operating Characteristic')
     plt.legend(loc='lower right')
+    plot_name = 'Receiver Operating Characteristic.png'
+    plt.savefig(plot_name)
     plt.show()
 
     
@@ -130,6 +134,8 @@ def plot_confusion_matrix(cm: np.ndarray, title: str, fmt: float) -> None:
     plt.tight_layout()
     bottom, top = ax.get_ylim()
     ax.set_ylim(bottom + 0.5, top - 0.5)
+    plot_name = title + '.png'
+    plt.savefig(plot_name)
     plt.show()
     
 
@@ -151,7 +157,9 @@ def plot_comparison_chart(df: pd.DataFrame, comp_type: str) -> None:
    
     # set title
     plt.title(comp_type.capitalize() + ' Comparison')
-    plt.setp(ax.xaxis.get_majorticklabels(), rotation=60, ha='right', rotation_mode='anchor') 
+    plt.setp(ax.xaxis.get_majorticklabels(), rotation=60, ha='right', rotation_mode='anchor')
+    plot_name = comp_type.capitalize() + ' Comparison.png'
+    plt.savefig(plot_name)
     plt.show()
     
 
