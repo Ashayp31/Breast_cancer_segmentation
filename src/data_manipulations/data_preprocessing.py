@@ -3,14 +3,13 @@ import os
 from imutils import paths
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.preprocessing.image import img_to_array, load_img
 from tensorflow.keras.utils import to_categorical
 
 import config
 
 
-def import_dataset(data_dir: str) -> (np.ndarray, np.ndarray):
+def import_dataset(data_dir: str, label_encoder) -> (np.ndarray, np.ndarray):
     """
     Import the dataset by pre-processing the images and encoding the labels.
     :return: Two NumPy arrays, one for the processed images and one for the encoded labels.
@@ -29,7 +28,7 @@ def import_dataset(data_dir: str) -> (np.ndarray, np.ndarray):
     labels = np.array(labels)
 
     # Encode labels.
-    labels = encode_labels(labels)
+    labels = encode_labels(labels, label_encoder)
 
     return images, labels
 
@@ -48,13 +47,13 @@ def preprocess_image(image_path: str) -> np.ndarray:
     return image
 
 
-def encode_labels(labels_list: np.ndarray) -> np.ndarray:
+def encode_labels(labels_list: np.ndarray, label_encoder) -> np.ndarray:
     """
     Encode labels using one-hot encoding.
+    :param label_encoder: The label encoder.
     :param labels_list: The list of labels in NumPy array format.
     :return: The encoded list of labels in NumPy array format.
     """
-    label_encoder = LabelEncoder()
     labels = label_encoder.fit_transform(labels_list)
     return to_categorical(labels)
 
