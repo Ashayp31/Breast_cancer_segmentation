@@ -3,6 +3,8 @@
 data/mini-MIAS/images_original
 data/mini-MIAS/images_processed
 .idea
+*.tar.gz
+*.zip
 
 # ______________________________________________________________________________________________________________________
 

@@ -1,12 +1,14 @@
 import argparse
 import time
 
+from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 import config
 from data_manipulations.data_preprocessing import import_dataset, dataset_stratified_split
-from model.vgg_model import *
+from model.output import evaluate
 from model.train_test_model import train_network, test_network
+from model.vgg_model import *
 from utils import print_runtime
 
 
@@ -21,7 +23,8 @@ def main() -> None:
     start_time = time.time()
 
     # Import dataset.
-    images, labels = import_dataset(data_dir="../data/{}/images_processed".format(config.dataset))
+    l_e = LabelEncoder()
+    images, labels = import_dataset(data_dir="../data/{}/images_processed".format(config.dataset), label_encoder=l_e)
 
     # Split dataset into training/test/validation sets (60%/20%/20% split).
     X_train, X_test, y_train, y_test = dataset_stratified_split(split=0.20, dataset=images, labels=labels)
@@ -48,10 +51,12 @@ def main() -> None:
 
     model = train_network(model, X_train, y_train, X_val, y_val, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
     y_pred = test_network(model, X_test)
-    print(y_pred)
+    # print(y_pred)
+
+    evaluate(y_test, y_pred, l_e, config.dataset, 'N-B-M')
 
     # Print training runtime.
-    print_runtime("Data import & pre-processing", round(time.time() - start_time, 2))
+    print_runtime("Total", round(time.time() - start_time, 2))
 
 
 def parse_command_line_arguments() -> None:
