@@ -2,6 +2,9 @@ import os
 
 from imutils import paths
 import numpy as np
+import random
+import skimage as sk
+import skimage.transform
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.preprocessing.image import img_to_array, load_img
 from tensorflow.keras.utils import to_categorical
