@@ -148,16 +148,17 @@ def plot_confusion_matrix(cm: np.ndarray, fmt: str, label_encoder, is_normalised
     plt.show()
 
 
-def plot_comparison_chart(df: pd.DataFrame, comp_type: str) -> None:
+def plot_comparison_chart(df: pd.DataFrame) -> None:
     """
     Plot comparison bar chart.
     :param df: Compare data from json file.
-    :param comp_type: Compare column.
     :return: None.
     """
+    title = "Accuracy Comparison"
+    
     # Plot.
     fig, ax = plt.subplots(figsize=(6, 5))
-    sns.barplot(x='paper', y=comp_type, data=df)
+    sns.barplot(x='paper', y='accuracy', data=df)
 
     # Add number at the top of the bar.
     for p in ax.patches:
@@ -165,10 +166,10 @@ def plot_comparison_chart(df: pd.DataFrame, comp_type: str) -> None:
         ax.text(p.get_x() + p.get_width() / 2., height + 0.01, height, ha='center')
 
     # Set title.
-    plt.title(comp_type.capitalize() + ' Comparison')
+    plt.title(title)
     plt.setp(ax.xaxis.get_majorticklabels(), rotation=60, ha='right', rotation_mode='anchor')
     plt.savefig(
-        "../output/{}-comparison_{}-model_{}-dataset.png".format(comp_type.capitalize(), config.model, config.dataset),
+        "../output/{}_{}-model_{}-dataset.png".format(title, config.model, config.dataset),
         bbox_inches='tight')
     plt.show()
 
@@ -220,4 +221,4 @@ def evaluate(y_true: list, y_pred: list, label_encoder: LabelEncoder, dataset: s
                            index=[0])  # Add model result into dataframe to compare.
     df = pd.concat([new_row, df]).reset_index(drop=True)
     df['accuracy'] = pd.to_numeric(df['accuracy'])  # Digitize the accuracy column.
-    plot_comparison_chart(df, 'Accuracy')
+    plot_comparison_chart(df)
