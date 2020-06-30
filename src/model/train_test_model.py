@@ -40,13 +40,8 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
         validation_steps=len(val_x) // batch_s,
         epochs=epochs1,
         callbacks=[
-<<<<<<< HEAD
-            EarlyStopping(patience=10, restore_best_weights=True),
+            EarlyStopping(monitor='val_categorical_accuracy', patience=10, restore_best_weights=True),
             ReduceLROnPlateau(patience=6)
-=======
-            EarlyStopping(monitor='val_categorical_accuracy', patience=4, restore_best_weights=True),
-            ReduceLROnPlateau(patience=4)
->>>>>>> 43088ae3c22e24457174e0e46bb70361f858d639
         ]
     )
 
@@ -70,13 +65,8 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
         validation_steps=len(val_x) // batch_s,
         epochs=epochs2,
         callbacks=[
-<<<<<<< HEAD
-            EarlyStopping(patience=10, restore_best_weights=True),
+            EarlyStopping(monitor='val_categorical_accuracy', patience=10, restore_best_weights=True),
             ReduceLROnPlateau(patience=6)
-=======
-            EarlyStopping(monitor='val_categorical_accuracy', patience=4, restore_best_weights=True),
-            ReduceLROnPlateau(patience=4)
->>>>>>> 43088ae3c22e24457174e0e46bb70361f858d639
         ]
     )
 
