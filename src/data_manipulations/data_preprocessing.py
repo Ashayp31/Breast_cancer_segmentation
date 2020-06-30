@@ -40,12 +40,14 @@ def preprocess_image(image_path: str) -> np.ndarray:
     Pre-processing steps:
         * Load the input image in grayscale mode (1 channel),
         * resize it to 224x224 pixels for the VGG19 CNN model,
-        * transform it to an array format.
+        * transform it to an array format,
+        * normalise the pixel intensities.
     :param image_path: The path to the image to preprocess.
     :return: The pre-processed image in NumPy array format.
     """
     image = load_img(image_path, color_mode="grayscale", target_size=(config.VGG_IMG_HEIGHT, config.VGG_IMG_WIDTH))
     image = img_to_array(image)
+    image /= 255.0
     return image
 
 
