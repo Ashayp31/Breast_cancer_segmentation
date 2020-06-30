@@ -8,6 +8,8 @@ from sklearn.metrics import accuracy_score, auc, classification_report, confusio
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.utils import to_categorical
 
+import config
+
 
 def plot_roc_curve(y_true: list, y_pred: list) -> None:
     """
@@ -34,8 +36,7 @@ def plot_roc_curve(y_true: list, y_pred: list) -> None:
     plt.ylabel('True Positive Rate')
     plt.title('Receiver Operating Characteristic')
     plt.legend(loc='lower right')
-    plot_name = 'Receiver Operating Characteristic.png'
-    plt.savefig("../output/{}".format(plot_name))
+    plt.savefig("../output/ROC-binary_{}-model_{}-dataset.png".format(config.model, config.dataset))
     plt.show()
 
 
@@ -108,19 +109,25 @@ def plot_roc_curve_multiclasses(y_true: list, y_pred: list, label_encoder) -> No
     plt.ylabel('True Positive Rate')
     plt.title('Receiver Operating Characteristic')
     plt.legend(loc='lower right')
-    plot_name = 'Receiver Operating Characteristic.png'
-    plt.savefig("../output/{}".format(plot_name))
+    plt.savefig("../output/ROC-binary_{}-model_{}-dataset.png".format(config.model, config.dataset))
     plt.show()
 
 
-def plot_confusion_matrix(cm: np.ndarray, title: str, fmt: float, label_encoder) -> None:
+def plot_confusion_matrix(cm: np.ndarray, fmt: str, label_encoder, is_normalised: bool) -> None:
     """
     Plot confusion matrix.
     :param cm: Confusion matrix array.
-    :param title: The title of the figure.
     :param fmt: The formatter for numbers in confusion matrix.
+    :param label_encoder: The label encoder used to get the number of classes.
+    :param is_normalised: Boolean specifying whether the confusion matrix is normalised or not.
     :return: None.
     """
+    title = str()
+    if is_normalised:
+        title = "Confusion Matrix Normalised"
+    elif not is_normalised:
+        title = "Confusion Matrix"
+
     # Plot.
     fig, ax = plt.subplots(figsize=(6, 4))
     sns.heatmap(cm, annot=True, ax=ax, fmt=fmt, cmap=plt.cm.Blues)  # annot=True to annotate cells
@@ -134,8 +141,10 @@ def plot_confusion_matrix(cm: np.ndarray, title: str, fmt: float, label_encoder)
     plt.tight_layout()
     bottom, top = ax.get_ylim()
     # ax.set_ylim(bottom + 0.5, top - 0.5)
-    plot_name = title + '.png'
-    plt.savefig("../output/{}".format(plot_name))
+    if is_normalised:
+        plt.savefig("../output/CM-norm_{}-model_{}-dataset.png".format(config.model, config.dataset))
+    elif not is_normalised:
+        plt.savefig("../output/CM_{}-model_{}-dataset.png".format(config.model, config.dataset))
     plt.show()
 
 
@@ -158,8 +167,9 @@ def plot_comparison_chart(df: pd.DataFrame, comp_type: str) -> None:
     # Set title.
     plt.title(comp_type.capitalize() + ' Comparison')
     plt.setp(ax.xaxis.get_majorticklabels(), rotation=60, ha='right', rotation_mode='anchor')
-    plot_name = comp_type.capitalize() + ' Comparison.png'
-    plt.savefig("../output/{}".format(plot_name), bbox_inches='tight')
+    plt.savefig(
+        "../output/{}-comparison_{}-model_{}-dataset.png".format(comp_type.capitalize(), config.model, config.dataset),
+        bbox_inches='tight')
     plt.show()
 
 
@@ -170,7 +180,8 @@ def evaluate(y_true: list, y_pred: list, label_encoder: LabelEncoder, dataset: s
     :param y_pred: Prediction result of the data in one-hot-encoding type.
     :param label_encoder: The label encoder for y value (label).
     :param dataset: The dataset to use.
-    :param classification_type: The classification type. Ex: N-B-M: normal, benign and malignant; B-M: benign and malignant.
+    :param classification_type: The classification type. Ex: N-B-M: normal, benign and malignant; B-M: benign and
+    malignant.
     :return: None.
     """
     # Inverse transform y_true and y_pred from one-hot-encoding to original label.
@@ -188,11 +199,11 @@ def evaluate(y_true: list, y_pred: list, label_encoder: LabelEncoder, dataset: s
 
     # Plot confusion matrix and normalised confusion matrix.
     cm = confusion_matrix(y_true_inv, y_pred_inv)  # calculate confusion matrix with original label of classes
-    plot_confusion_matrix(cm, 'Confusion Matrix', 'd', label_encoder)
+    plot_confusion_matrix(cm, 'd', label_encoder, False)
     # Calculate normalized confusion matrix with original label of classes.
     cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
     cm_normalized[np.isnan(cm_normalized)] = 0
-    plot_confusion_matrix(cm_normalized, 'Normalized Confusion Matrix', '.2f', label_encoder)
+    plot_confusion_matrix(cm_normalized, '.2f', label_encoder, True)
 
     # Plot ROC curve.
     if len(label_encoder.classes_) == 2:  # binary classification
@@ -208,5 +219,5 @@ def evaluate(y_true: list, y_pred: list, label_encoder: LabelEncoder, dataset: s
     new_row = pd.DataFrame({'paper': 'Dissertation', 'accuracy': accuracy},
                            index=[0])  # Add model result into dataframe to compare.
     df = pd.concat([new_row, df]).reset_index(drop=True)
-    df['accuracy'] = pd.to_numeric(df['accuracy'])  # digitize the accuracy column
-    plot_comparison_chart(df, 'accuracy')
+    df['accuracy'] = pd.to_numeric(df['accuracy'])  # Digitize the accuracy column.
+    plot_comparison_chart(df, 'Accuracy')
