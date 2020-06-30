@@ -21,6 +21,7 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
     :param epochs2: epoch count for training all layers unfrozen
     :return: trained network
     """
+    
 
     # Train model with frozen layers
     # ALl training with early stopping dictated by loss in validation over 3 runs
