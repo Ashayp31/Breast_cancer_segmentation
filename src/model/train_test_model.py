@@ -5,6 +5,8 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import CategoricalCrossentropy
 from tensorflow.keras.metrics import CategoricalAccuracy
 
+import config
+
 
 def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epochs2):
     """
@@ -21,6 +23,7 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
     :param epochs2: epoch count for training all layers unfrozen
     :return: trained network
     """
+    
 
     # Train model with frozen layers
     # ALl training with early stopping dictated by loss in validation over 3 runs
@@ -37,13 +40,18 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
         validation_steps=len(val_x) // batch_s,
         epochs=epochs1,
         callbacks=[
+<<<<<<< HEAD
             EarlyStopping(patience=10, restore_best_weights=True),
             ReduceLROnPlateau(patience=6)
+=======
+            EarlyStopping(monitor='val_categorical_accuracy', patience=4, restore_best_weights=True),
+            ReduceLROnPlateau(patience=4)
+>>>>>>> 43088ae3c22e24457174e0e46bb70361f858d639
         ]
     )
 
     # plot the training loss and accuracy
-    plot_training_results(hist, "Initial_training.png")
+    plot_training_results(hist, "Initial_training")
 
     # Train again with slower learning rate unfreezing all layers
     # Train over fewer epochs to stop overfitting
@@ -62,12 +70,17 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
         validation_steps=len(val_x) // batch_s,
         epochs=epochs2,
         callbacks=[
+<<<<<<< HEAD
             EarlyStopping(patience=10, restore_best_weights=True),
             ReduceLROnPlateau(patience=6)
+=======
+            EarlyStopping(monitor='val_categorical_accuracy', patience=4, restore_best_weights=True),
+            ReduceLROnPlateau(patience=4)
+>>>>>>> 43088ae3c22e24457174e0e46bb70361f858d639
         ]
     )
 
-    plot_training_results(hist_2, "Fine_tuning_training.png")
+    plot_training_results(hist_2, "Fine_tuning_training")
 
     return model
 
@@ -83,11 +96,11 @@ def test_network(model, test_x):
     return y_predict
 
 
-def plot_training_results(hist_input, plot_name):
+def plot_training_results(hist_input, plot_name: str) -> None:
     """
     Function to plot loss and accuracy over epoch count for training
-    :param hist: training history
-    :param plot_name: plot name
+    :param hist_input: The training history.
+    :param plot_name: The plot name.
     """
     n = len(hist_input.history["loss"])
     plt.style.use("ggplot")
@@ -100,5 +113,5 @@ def plot_training_results(hist_input, plot_name):
     plt.xlabel("Epoch #")
     plt.ylabel("Loss/Accuracy")
     plt.legend(loc="lower left")
-    plt.savefig("../output/{}".format(plot_name))
+    plt.savefig("../output/{}_{}-model_{}-dataset.png".format(plot_name, config.model, config.dataset))
     plt.show()

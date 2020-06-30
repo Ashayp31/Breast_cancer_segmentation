@@ -6,7 +6,12 @@ import pandas as pd
 
 def main() -> None:
     """
-    Converts all PGM images to PNG format for the mini-MIAS dataset.
+    Initial dataset pre-processing for the mini-MIAS dataset:
+        * Imports a CSV file with the image names and their label
+        * Cleans the labels column by replacing empty cells with 'N', corresponding to normal cases.
+        * Organises all images into labelled directories instead of one large directory with all images from all
+        classes.
+        * Converts all PGM images to PNG format.
     :return: None
     """
     KEY_LABEL = 3
