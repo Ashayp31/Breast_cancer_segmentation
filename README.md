@@ -1,6 +1,6 @@
 # Breast-Cancer-Detection-Code
 
-## Usage for a GPU lab machine
+## Usage on a GPU lab machine
 
 Clone the repository:
 
@@ -26,27 +26,53 @@ source /Breast-Cancer-Detection-Code/tf2/venv/bin/activate
 `cd` into the `src` directory and run the code:
 
 ```
-python3 main.py
+python3 main.py -d [dataset] -m [model] -v
 ```
+
+where:
+
+* `dataset` is the dataset to use. Must be either `mini-MIAS` or `CBIS-DDMS`.
+* `model` is the model to use. Must be either `basic` or `advanced`.
+* `-v` is a flag controlling verbose mode, which prints additional statements for debugging purposes.
 
 ## Dataset usage
 
-This example will use the [mini-MIAS](http://peipa.essex.ac.uk/info/mias.html) dataset. Create a `data` directory:
+* This example will use the [mini-MIAS](http://peipa.essex.ac.uk/info/mias.html) dataset. After cloning the project, travel to the `data/mini-MIAS` directory (there should be 3 files in it).
+
+* Create `images_original` and `images_processed` directories in this directory: 
 
 ```
-mkdir data
-cd data
+cd data/mini-MIAS/
+mkdir images_original
+mkdir images_processed
 ```
 
-Download the mini-MIAS dataset: 
+* Move to the `images_original` directory and download the raw un-processed images:
 
 ```
+cd images_original
 wget http://peipa.essex.ac.uk/pix/mias/all-mias.tar.gz
 ```
 
-Unzip the dataset:
+* Unzip the dataset then delete all non-image files:
 
 ```
 tar xvzf all-mias.tar.gz
+rm -rf *.txt 
+rm -rf README 
 ```
 
+* Move back up one level and move to the `images_processed` directory. Create 3 new directories there (`benign_cases`, `malignant_cases` and `normal_cases`):
+
+```
+cd ../images_processed
+mkdir benign_cases
+mkdir malignant_cases
+mkdir normal_cases
+```
+
+* Now run the python script for processing the dataset and render it usable with Tensorflow and Keras:
+
+```
+python3 ../../../src/data_manipulations/mini-MIAS-initial-pre-processing.py
+```
