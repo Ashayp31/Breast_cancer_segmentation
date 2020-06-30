@@ -1,4 +1,3 @@
-
 import json
 import matplotlib.pyplot as plt
 import numpy as np
@@ -119,7 +118,7 @@ def plot_confusion_matrix(cm: np.ndarray, title: str, fmt: float, label_encoder)
     :return: None.
     """
     # plot
-    fig, ax = plt.subplots(figsize=(6, 5))
+    fig, ax = plt.subplots(figsize=(6, 4))
     sns.heatmap(cm, annot=True, ax=ax, fmt=fmt, cmap=plt.cm.Blues)  # annot=True to annotate cells
 
     # set labels, title, ticks and axis range
@@ -130,7 +129,7 @@ def plot_confusion_matrix(cm: np.ndarray, title: str, fmt: float, label_encoder)
     ax.yaxis.set_ticklabels(label_encoder.classes_)
     plt.tight_layout()
     bottom, top = ax.get_ylim()
-    ax.set_ylim(bottom + 0.5, top - 0.5)
+    # ax.set_ylim(bottom + 0.5, top - 0.5)
     plot_name = title + '.png'
     plt.savefig("../output/{}".format(plot_name))
     plt.show()
@@ -156,7 +155,7 @@ def plot_comparison_chart(df: pd.DataFrame, comp_type: str) -> None:
     plt.title(comp_type.capitalize() + ' Comparison')
     plt.setp(ax.xaxis.get_majorticklabels(), rotation=60, ha='right', rotation_mode='anchor')
     plot_name = comp_type.capitalize() + ' Comparison.png'
-    plt.savefig("../output/{}".format(plot_name))
+    plt.savefig("../output/{}".format(plot_name), bbox_inches = 'tight')
     plt.show()
 
 
@@ -185,7 +184,7 @@ def evaluate(y_true: list, y_pred: list, label_encoder: LabelEncoder, dataset: s
 
     # plot confusion matrix
     cm = confusion_matrix(y_true_inv, y_pred_inv)  # calculate confusion matrix with original label of classes
-    plot_confusion_matrix(cm, 'Confusion Matrix', '.2f', label_encoder)
+    plot_confusion_matrix(cm, 'Confusion Matrix', 'd', label_encoder)
 
     cm_normalized = cm.astype('float') / cm.sum(axis=1)[:,
                                          np.newaxis]  # calculate normalized confusion matrix with original label of classes
