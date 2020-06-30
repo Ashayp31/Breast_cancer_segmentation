@@ -2,6 +2,9 @@ import os
 
 from imutils import paths
 import numpy as np
+import random
+import skimage as sk
+import skimage.transform
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.preprocessing.image import img_to_array, load_img
 from tensorflow.keras.utils import to_categorical
@@ -22,6 +25,8 @@ def import_dataset(data_dir: str, label_encoder) -> (np.ndarray, np.ndarray):
     for image_path in list(paths.list_images(data_dir)):
         images.append(preprocess_image(image_path))
         labels.append(image_path.split(os.path.sep)[-2])  # Extract label from path.
+        
+    images, labels = generate_image_transforms(images, labels)
 
     # Convert the data and labels lists to NumPy arrays.
     images = np.array(images, dtype="float32")  # Convert images to a batch.
@@ -74,5 +79,79 @@ def dataset_stratified_split(split: float, dataset: np.ndarray, labels: np.ndarr
                                                         labels,
                                                         test_size=split,
                                                         stratify=labels,
-                                                        random_state=config.RANDOM_SEED)
+                                                        random_state=config.RANDOM_SEED,
+                                                        shuffle=True)
     return train_X, test_X, train_Y, test_Y
+
+
+def random_rotation(image_array: np.ndarray):
+    """
+    Randomly rotate the image
+    :param image_array: input image
+    :return: randomly rotated image
+    """
+    random_degree = random.uniform(-20, 20)
+    return sk.transform.rotate(image_array, random_degree)
+
+
+def random_noise(image_array: np.ndarray):
+    """
+    Add random noise to image
+    :param image_array: input image
+    :return: image with added random noise
+    """
+    return sk.util.random_noise(image_array)
+
+
+def horizantal_flip(image_array: np.ndarray):
+    """
+    Flip image
+    :param image_array: input image
+    :return: horizantally flipped image
+    """
+    return image_array[:, ::-1]
+
+
+def generate_image_transforms(images, labels):
+    """
+    oversample data by tranforming existing images
+    :param images: input images
+    :param labels: input labels
+    :return: updated list of images and labels with extra transformed images and labels
+    """
+
+    available_transforms = {'rotate': random_rotation,
+                            'noise': random_noise,
+                            'horizantal_flip': horizantal_flip}
+
+    benign_indices = [i for i, x in enumerate(labels) if x == "benign_cases"]
+    benign_images = [images[i] for i in benign_indices]
+    malignant_indices = [i for i, x in enumerate(labels) if x == "malignant_cases"]
+    malignant_images = [images[i] for i in malignant_indices]
+
+    for i in range(150):
+        images.append(create_individual_transform(benign_images[i % len(benign_images)], available_transforms))
+        labels.append("benign_cases")
+        images.append(create_individual_transform(malignant_images[i % len(malignant_images)],
+                                                                     available_transforms))
+        labels.append("malignant_cases")
+
+    return images, labels
+
+def create_individual_transform(image: np.array, transforms: dict):
+    """
+    Create transormation of an individual image
+    :param image: input image
+    :param transforms: the possible transforms to do on the image
+    :return: transformed image
+    """
+    num_transformations_to_apply = random.randint(1, len(transforms))
+    num_transforms = 0
+    transformed_image = None
+    while num_transforms <= num_transformations_to_apply:
+        key = random.choice(list(transforms))
+        transformed_image = transforms[key](image)
+        num_transforms += 1
+
+    return transformed_image
+

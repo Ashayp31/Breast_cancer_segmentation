@@ -7,9 +7,9 @@ RANDOM_SEED = 111
 VGG_IMG_HEIGHT = 512
 VGG_IMG_WIDTH = 512
 CLASSES = 3  # Todo: dynamically estimate number of classes
-BATCH_SIZE = 10
-EPOCH_1 = 2
-EPOCH_2 = 2
+BATCH_SIZE = 5
+EPOCH_1 = 100
+EPOCH_2 = 40
 
 # Variables set by command line arguments/flags
 dataset = "mini-MIAS"   # The dataset to use.
