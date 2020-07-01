@@ -42,9 +42,9 @@ def main() -> None:
 
     # Create CNN model
     if config.model == "basic":
-        model = generate_vgg_model_basic([config.VGG_IMG_WIDTH, config.VGG_IMG_HEIGHT], config.CLASSES)
-    else:
-        model = generate_vgg_model_adv([config.VGG_IMG_WIDTH, config.VGG_IMG_HEIGHT], config.CLASSES)
+        model = generate_vgg_model_basic([config.VGG_IMG_WIDTH, config.VGG_IMG_HEIGHT], l_e.classes_.size)
+    elif config.model == "advanced":
+        model = generate_vgg_model_adv([config.VGG_IMG_WIDTH, config.VGG_IMG_HEIGHT], l_e.classes_.size)
 
     # Freeze VGG19 pre-trained layers
     model.layers[0].trainable = False

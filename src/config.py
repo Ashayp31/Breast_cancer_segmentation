@@ -6,7 +6,6 @@ Variables set by the command line arguments dictating which parts of the program
 RANDOM_SEED = 111
 VGG_IMG_HEIGHT = 512
 VGG_IMG_WIDTH = 512
-CLASSES = 3  # Todo: dynamically estimate number of classes
 BATCH_SIZE = 10
 EPOCH_1 = 2
 EPOCH_2 = 2

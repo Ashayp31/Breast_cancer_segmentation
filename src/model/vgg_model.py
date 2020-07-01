@@ -1,3 +1,5 @@
+import ssl
+
 from tensorflow.keras.applications import VGG19
 from tensorflow.keras.layers import Dropout
 from tensorflow.keras.layers import Flatten
@@ -7,9 +9,7 @@ from tensorflow.keras.layers import Concatenate
 from tensorflow.python.keras.layers import Conv2D, MaxPooling2D
 from tensorflow.python.keras import Sequential
 
-
 # Needed to download pre-trained weights for imagenet
-import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
@@ -69,11 +69,11 @@ def generate_vgg_model_adv(input_shape, classes_len):
 
     # Generate added Convolutional layers
     model.add(Conv2D(1024, (3, 3),
-                      activation='relu',
-                      padding='same'))
+                     activation='relu',
+                     padding='same'))
     model.add(Conv2D(1024, (3, 3),
-                      activation='relu',
-                      padding='same'))
+                     activation='relu',
+                     padding='same'))
 
     model.add(MaxPooling2D((2, 2), strides=(2, 2)))
 
