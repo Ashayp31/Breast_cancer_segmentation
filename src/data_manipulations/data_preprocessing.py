@@ -48,7 +48,9 @@ def preprocess_image(image_path: str) -> np.ndarray:
     :param image_path: The path to the image to preprocess.
     :return: The pre-processed image in NumPy array format.
     """
-    image = load_img(image_path, color_mode="grayscale", target_size=(config.VGG_IMG_HEIGHT, config.VGG_IMG_WIDTH))
+    image = load_img(image_path,
+                     color_mode="grayscale",
+                     target_size=(config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE["WIDTH"]))
     image = img_to_array(image)
     image /= 255.0
     return image
