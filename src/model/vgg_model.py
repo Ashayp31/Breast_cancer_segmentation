@@ -1,27 +1,26 @@
 import ssl
 
 from tensorflow.keras.applications import VGG19
-from tensorflow.keras.layers import Dropout
-from tensorflow.keras.layers import Flatten
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.layers import Input
-from tensorflow.keras.layers import Concatenate
-from tensorflow.python.keras.layers import Conv2D, MaxPooling2D
+from tensorflow.keras.layers import Concatenate, Dense, Dropout, Flatten, Input
 from tensorflow.python.keras import Sequential
+from tensorflow.python.keras.layers import Conv2D, MaxPooling2D
 
-# Needed to download pre-trained weights for imagenet
+import config
+
+# Needed to download pre-trained weights for ImageNet
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
-def generate_vgg_model_basic(input_shape, classes_len):
+def generate_vgg_model(classes_len: int):
     """
-    Function to create VGG19 model pretrained with custom FC Layers
-    :param input_shape: image size
-    :param classes_len: number of classes
-    :return: model
+    Function to create a VGG19 model pre-trained with custom FC Layers.
+    If the "advanced" command line argument is selected, adds an extra convolutional layer with extra filters to support
+    larger images.
+    :param classes_len: The number of classes (labels).
+    :return: The VGG19 model.
     """
     # Reconfigure single channel input into a greyscale 3 channel input
-    img_input = Input(shape=(input_shape[0], input_shape[1], 1))
+    img_input = Input(shape=(config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE['WIDTH'], 1))
     img_conc = Concatenate()([img_input, img_input, img_input])
 
     # Generate VGG19 model with pre-trained imagenet weights, input as given above, without the fully connected layers
@@ -32,52 +31,16 @@ def generate_vgg_model_basic(input_shape, classes_len):
     # Start with base model consisting of convolutional layers
     model.add(model_base)
 
-    # Flatten
-    model.add(Flatten())
+    # Generate additional Convolutional layers
+    if config.model == "advanced":
+        model.add(Conv2D(1024, (3, 3),
+                         activation='relu',
+                         padding='same'))
+        model.add(Conv2D(1024, (3, 3),
+                         activation='relu',
+                         padding='same'))
+        model.add(MaxPooling2D((2, 2), strides=(2, 2)))
 
-    # Add fully connected layers
-    model.add(Dense(512, activation='relu', name='Dense_Intermediate_1'))
-    model.add(Dense(32, activation='relu', name='Dense_Intermediate_2'))
-
-    # Possible dropout for regularisation can be added later and experimented with
-    # model.add(Dropout(0.1, name='Dropout_Regularization'))
-
-    # Final output layer
-    model.add(Dense(classes_len, activation='softmax', name='Output'))
-
-    return model
-
-
-def generate_vgg_model_adv(input_shape, classes_len):
-    """
-    Function to create VGG19 model with an extra convolutional layer with extra filters due to larger images
-    :param input_shape: image size
-    :param classes_len: number of classes
-    :return: model
-    """
-    # Reconfigure single channel input into a greyscale 3 channel input
-    img_input = Input(shape=(input_shape[0], input_shape[1], 1))
-    img_conc = Concatenate()([img_input, img_input, img_input])
-
-    # Generate VGG19 model with pre-trained imagenet weights, input as given above, without the fully connected layers
-    model_base = VGG19(include_top=False, weights='imagenet', input_tensor=img_conc)
-
-    # On top of original VGG19 model without fully connected layers we add finer filters with further layers
-    model = Sequential()
-    # Start with base model consisting of convolutional layers
-    model.add(model_base)
-
-    # Generate added Convolutional layers
-    model.add(Conv2D(1024, (3, 3),
-                     activation='relu',
-                     padding='same'))
-    model.add(Conv2D(1024, (3, 3),
-                     activation='relu',
-                     padding='same'))
-
-    model.add(MaxPooling2D((2, 2), strides=(2, 2)))
-
-    # add fully connected layers for classification from features
     # Flatten
     model.add(Flatten())
 
