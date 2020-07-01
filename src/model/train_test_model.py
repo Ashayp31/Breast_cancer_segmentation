@@ -1,11 +1,9 @@
-import matplotlib.pyplot as plt
-import numpy as np
 from tensorflow.keras.losses import CategoricalCrossentropy
 from tensorflow.keras.metrics import CategoricalAccuracy
 from tensorflow.keras.optimizers import Adam
 from tensorflow.python.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 
-import config
+from model.output import plot_training_results
 
 
 def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epochs2):
@@ -74,33 +72,11 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
     return model
 
 
-def test_network(model, test_x):
+def make_predictions(model, x):
     """
-    :param model:  CNN model
-    :param test_x: testing inputs
-    :return: ouputs predicted by the model
+    :param model: The CNN model.
+    :param x: Input.
+    :return: Model predictions.
     """
-    y_predict = model.predict(x=test_x.astype("float32"), batch_size=10)
-
+    y_predict = model.predict(x=x.astype("float32"), batch_size=10)
     return y_predict
-
-
-def plot_training_results(hist_input, plot_name: str) -> None:
-    """
-    Function to plot loss and accuracy over epoch count for training
-    :param hist_input: The training history.
-    :param plot_name: The plot name.
-    """
-    n = len(hist_input.history["loss"])
-    plt.style.use("ggplot")
-    plt.figure()
-    plt.plot(np.arange(0, n), hist_input.history["loss"], label="train_loss")
-    plt.plot(np.arange(0, n), hist_input.history["val_loss"], label="val_loss")
-    plt.plot(np.arange(0, n), hist_input.history["categorical_accuracy"], label="train_acc")
-    plt.plot(np.arange(0, n), hist_input.history["val_categorical_accuracy"], label="val_acc")
-    plt.title("Training Loss and Accuracy on Dataset with all layers unfrozen")
-    plt.xlabel("Epoch #")
-    plt.ylabel("Loss/Accuracy")
-    plt.legend(loc="lower left")
-    plt.savefig("../output/{}_{}-model_{}-dataset.png".format(plot_name, config.model, config.dataset))
-    plt.show()

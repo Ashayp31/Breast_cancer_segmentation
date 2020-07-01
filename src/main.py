@@ -7,7 +7,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import config
 from data_manipulations.data_preprocessing import import_dataset, dataset_stratified_split
 from model.output import evaluate
-from model.train_test_model import train_network, test_network
+from model.train_test_model import make_predictions, train_network
 from model.vgg_model import generate_vgg_model
 from utils import print_runtime
 
@@ -47,8 +47,7 @@ def main() -> None:
     model.layers[0].trainable = False
 
     model = train_network(model, X_train, y_train, X_val, y_val, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
-    y_pred = test_network(model, X_val)
-    # print(y_pred)
+    y_pred = make_predictions(model, X_val)
 
     evaluate(y_val, y_pred, l_e, config.dataset, 'N-B-M')
 
