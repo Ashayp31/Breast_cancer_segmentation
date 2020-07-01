@@ -23,6 +23,7 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
     :param epochs2: epoch count for training all layers unfrozen
     :return: trained network
     """
+    
 
     # Train model with frozen layers
     # ALl training with early stopping dictated by loss in validation over 3 runs
@@ -39,8 +40,8 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
         validation_steps=len(val_x) // batch_s,
         epochs=epochs1,
         callbacks=[
-            EarlyStopping(patience=4, restore_best_weights=True),
-            ReduceLROnPlateau(patience=4)
+            EarlyStopping(monitor='val_categorical_accuracy', patience=10, restore_best_weights=True),
+            ReduceLROnPlateau(patience=6)
         ]
     )
 
@@ -64,8 +65,8 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
         validation_steps=len(val_x) // batch_s,
         epochs=epochs2,
         callbacks=[
-            EarlyStopping(patience=4, restore_best_weights=True),
-            ReduceLROnPlateau(patience=4)
+            EarlyStopping(monitor='val_categorical_accuracy', patience=10, restore_best_weights=True),
+            ReduceLROnPlateau(patience=6)
         ]
     )
 

@@ -138,9 +138,9 @@ def plot_confusion_matrix(cm: np.ndarray, fmt: str, label_encoder, is_normalised
     ax.set_title(title)
     ax.xaxis.set_ticklabels(label_encoder.classes_)
     ax.yaxis.set_ticklabels(label_encoder.classes_)
+    plt.setp(ax.yaxis.get_majorticklabels(), rotation=0, ha='right', rotation_mode='anchor')
     plt.tight_layout()
     bottom, top = ax.get_ylim()
-    # ax.set_ylim(bottom + 0.5, top - 0.5)
     if is_normalised:
         plt.savefig("../output/CM-norm_{}-model_{}-dataset.png".format(config.model, config.dataset))
     elif not is_normalised:
@@ -168,6 +168,7 @@ def plot_comparison_chart(df: pd.DataFrame) -> None:
     # Set title.
     plt.title(title)
     plt.setp(ax.xaxis.get_majorticklabels(), rotation=60, ha='right', rotation_mode='anchor')
+    plt.tight_layout()
     plt.savefig(
         "../output/{}_{}-model_{}-dataset.png".format(title, config.model, config.dataset),
         bbox_inches='tight')
