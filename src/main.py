@@ -5,12 +5,11 @@ from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 import config
-from data_manipulations.data_preprocessing import import_dataset, dataset_stratified_split
+from data_manipulations.data_preprocessing import import_dataset, dataset_stratified_split, generate_image_transforms
 from model.output import evaluate
 from model.train_test_model import make_predictions, train_network
 from model.vgg_model import generate_vgg_model
 from utils import print_runtime
-
 
 def main() -> None:
     """
@@ -28,7 +27,8 @@ def main() -> None:
 
     # Split dataset into training/test/validation sets (60%/20%/20% split).
     X_train, X_test, y_train, y_test = dataset_stratified_split(split=0.20, dataset=images, labels=labels)
-    X_train, X_val, y_train, y_val = dataset_stratified_split(split=0.25, dataset=X_train, labels=y_train)
+    X_train_rebalanced, y_train_rebalanced = generate_image_transforms(X_train, y_train)
+    X_train, X_val, y_train, y_val = dataset_stratified_split(split=0.25, dataset=X_train_rebalanced, labels=y_train_rebalanced)
 
     # Construct the training image generator for data augmentation.
     augmentation = ImageDataGenerator(

@@ -26,8 +26,6 @@ def import_dataset(data_dir: str, label_encoder) -> (np.ndarray, np.ndarray):
         images.append(preprocess_image(image_path))
         labels.append(image_path.split(os.path.sep)[-2])  # Extract label from path.
 
-    images, labels = generate_image_transforms(images, labels)
-
     # Convert the data and labels lists to NumPy arrays.
     images = np.array(images, dtype="float32")  # Convert images to a batch.
     labels = np.array(labels)
@@ -121,24 +119,37 @@ def generate_image_transforms(images, labels):
     :param labels: input labels
     :return: updated list of images and labels with extra transformed images and labels
     """
+    images_with_transforms = images
+    labels_with_transforms = labels
 
     available_transforms = {'rotate': random_rotation,
                             'noise': random_noise,
                             'horizantal_flip': horizantal_flip}
 
-    benign_indices = [i for i, x in enumerate(labels) if x == "benign_cases"]
-    benign_images = [images[i] for i in benign_indices]
-    malignant_indices = [i for i, x in enumerate(labels) if x == "malignant_cases"]
-    malignant_images = [images[i] for i in malignant_indices]
+    class_balance = get_class_balances(labels)
+    max_count = max(class_balance)
+    to_add = [max_count-i for i in class_balance]
 
-    for i in range(150):
-        images.append(create_individual_transform(benign_images[i % len(benign_images)], available_transforms))
-        labels.append("benign_cases")
-        images.append(create_individual_transform(malignant_images[i % len(malignant_images)],
-                                                  available_transforms))
-        labels.append("malignant_cases")
+    for i in range(len(to_add)):
+        if int(to_add[i]) == 0:
+            continue
+        label = np.zeros(len(to_add))
+        label[i] = 1
+        indices = [j for j, x in enumerate(labels) if np.array_equal(x, label)]
+        indiv_class_images = [images[j] for j in indices]
 
-    return images, labels
+        for k in range(int(to_add[i])):
+            a = create_individual_transform(indiv_class_images[k % len(indiv_class_images)], available_transforms)
+            transformed_image = create_individual_transform(indiv_class_images[k % len(indiv_class_images)],
+                                                                           available_transforms)
+            transformed_image = transformed_image.reshape(1, config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE['WIDTH'], 1)
+
+            images_with_transforms = np.append(images_with_transforms, transformed_image, axis=0)
+            transformed_label = label.reshape(1,len(label))
+            labels_with_transforms = np.append(labels_with_transforms, transformed_label, axis=0)
+
+    return images_with_transforms, labels_with_transforms
+
 
 
 def create_individual_transform(image: np.array, transforms: dict):
@@ -157,3 +168,19 @@ def create_individual_transform(image: np.array, transforms: dict):
         num_transforms += 1
 
     return transformed_image
+
+
+def get_class_balances(y_vals):
+    """
+    Count occurence of each class
+    :param y_vals: labels
+    :return: array count of each class
+    """
+    num_classes = len(y_vals[0])
+    counts = np.zeros(num_classes)
+    for y_val in y_vals:
+        for i in range(num_classes):
+            counts[i] += y_val[i]
+
+    return (counts.tolist())
+

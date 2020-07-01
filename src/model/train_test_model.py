@@ -80,3 +80,27 @@ def make_predictions(model, x):
     """
     y_predict = model.predict(x=x.astype("float32"), batch_size=10)
     return y_predict
+<<<<<<< HEAD
+
+
+def plot_training_results(hist_input, plot_name: str) -> None:
+    """
+    Function to plot loss and accuracy over epoch count for training
+    :param hist_input: The training history.
+    :param plot_name: The plot name.
+    """
+    n = len(hist_input.history["loss"])
+    plt.style.use("ggplot")
+    plt.figure()
+    plt.plot(np.arange(0, n), hist_input.history["loss"], label="train_loss")
+    plt.plot(np.arange(0, n), hist_input.history["val_loss"], label="val_loss")
+    plt.plot(np.arange(0, n), hist_input.history["categorical_accuracy"], label="train_acc")
+    plt.plot(np.arange(0, n), hist_input.history["val_categorical_accuracy"], label="val_acc")
+    plt.title("Training Loss and Accuracy Evolution on Dataset")
+    plt.xlabel("Epoch #")
+    plt.ylabel("Loss/Accuracy")
+    plt.legend(loc="lower left")
+    plt.savefig("../output/{}_{}-model_{}-dataset.png".format(plot_name, config.model, config.dataset))
+    plt.show()
+=======
+>>>>>>> e5351536e96ba4aeeb7572b45b7fd96a48cd76d8
