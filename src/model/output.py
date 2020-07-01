@@ -190,8 +190,6 @@ def evaluate(y_true: list, y_pred: list, label_encoder: LabelEncoder, dataset: s
     y_true_inv = label_encoder.inverse_transform(np.argmax(y_true, axis=1))
     y_pred_inv = label_encoder.inverse_transform(np.argmax(y_pred, axis=1))
 
-    y_pred_one_hot = to_categorical(np.argmax(y_pred, axis=1))
-
     # Calculate accuracy.
     accuracy = float('{:.4f}'.format(accuracy_score(y_true_inv, y_pred_inv)))
     print('accuracy = {}\n'.format(accuracy))
@@ -209,9 +207,9 @@ def evaluate(y_true: list, y_pred: list, label_encoder: LabelEncoder, dataset: s
 
     # Plot ROC curve.
     if len(label_encoder.classes_) == 2:  # binary classification
-        plot_roc_curve(y_true, y_pred_one_hot)
+        plot_roc_curve(y_true, y_pred)
     elif len(label_encoder.classes_) >= 2:  # multi classification
-        plot_roc_curve_multiclasses(y_true, y_pred_one_hot, label_encoder)
+        plot_roc_curve_multiclasses(y_true, y_pred, label_encoder)
 
     # Compare our results with other papers' result.
     with open('other/other_results.json') as config_file:  # load other papers' result from json file
