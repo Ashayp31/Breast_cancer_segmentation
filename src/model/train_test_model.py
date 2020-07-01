@@ -1,11 +1,9 @@
-import matplotlib.pyplot as plt
-import numpy as np
-from tensorflow.python.keras.callbacks import EarlyStopping, ReduceLROnPlateau
-from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import CategoricalCrossentropy
 from tensorflow.keras.metrics import CategoricalAccuracy
+from tensorflow.keras.optimizers import Adam
+from tensorflow.python.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 
-import config
+from model.output import plot_training_results
 
 
 def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epochs2):
@@ -23,7 +21,6 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
     :param epochs2: epoch count for training all layers unfrozen
     :return: trained network
     """
-    
 
     # Train model with frozen layers
     # ALl training with early stopping dictated by loss in validation over 3 runs
@@ -32,9 +29,9 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
                   metrics=[CategoricalAccuracy()])
 
     hist = model.fit(
-        x= train_x,
+        x=train_x,
         y=train_y,
-        batch_size = batch_s,
+        batch_size=batch_s,
         steps_per_epoch=len(train_x) // batch_s,
         validation_data=(val_x, val_y),
         validation_steps=len(val_x) // batch_s,
@@ -46,7 +43,7 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
     )
 
     # plot the training loss and accuracy
-    plot_training_results(hist, "Initial_training")
+    plot_training_results(hist, "Initial_training", True)
 
     # Train again with slower learning rate unfreezing all layers
     # Train over fewer epochs to stop overfitting
@@ -59,7 +56,7 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
     hist_2 = model.fit(
         x=train_x,
         y=train_y,
-        batch_size = batch_s,
+        batch_size=batch_s,
         steps_per_epoch=len(train_x) // batch_s,
         validation_data=(val_x, val_y),
         validation_steps=len(val_x) // batch_s,
@@ -70,20 +67,20 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
         ]
     )
 
-    plot_training_results(hist_2, "Fine_tuning_training")
+    plot_training_results(hist_2, "Fine_tuning_training", False)
 
     return model
 
 
-def test_network(model, test_x):
+def make_predictions(model, x):
     """
-    :param model:  CNN model
-    :param test_x: testing inputs
-    :return: ouputs predicted by the model
+    :param model: The CNN model.
+    :param x: Input.
+    :return: Model predictions.
     """
-    y_predict = model.predict(x=test_x.astype("float32"), batch_size=10)
-
+    y_predict = model.predict(x=x.astype("float32"), batch_size=10)
     return y_predict
+<<<<<<< HEAD
 
 
 def plot_training_results(hist_input, plot_name: str) -> None:
@@ -105,3 +102,5 @@ def plot_training_results(hist_input, plot_name: str) -> None:
     plt.legend(loc="lower left")
     plt.savefig("../output/{}_{}-model_{}-dataset.png".format(plot_name, config.model, config.dataset))
     plt.show()
+=======
+>>>>>>> e5351536e96ba4aeeb7572b45b7fd96a48cd76d8

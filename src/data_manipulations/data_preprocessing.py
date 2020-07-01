@@ -25,7 +25,7 @@ def import_dataset(data_dir: str, label_encoder) -> (np.ndarray, np.ndarray):
     for image_path in list(paths.list_images(data_dir)):
         images.append(preprocess_image(image_path))
         labels.append(image_path.split(os.path.sep)[-2])  # Extract label from path.
-        
+
     # Convert the data and labels lists to NumPy arrays.
     images = np.array(images, dtype="float32")  # Convert images to a batch.
     labels = np.array(labels)
@@ -68,8 +68,8 @@ def encode_labels(labels_list: np.ndarray, label_encoder) -> np.ndarray:
 def dataset_stratified_split(split: float, dataset: np.ndarray, labels: np.ndarray) -> \
         (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """
-    Partition the data into training and testing splits using 80%/20% split. Stratify the split to keep the same class
-    distribution in both sets.
+    Partition the data into training and testing splits. Stratify the split to keep the same class distribution in both
+    sets and shuffle the order to avoid having imbalanced splits.
     :param split: Dataset split (e.g. if 0.2 is passed, then the dataset is split in 80%/20%).
     :param dataset: The dataset of pre-processed images.
     :param labels: The list of labels.
@@ -149,6 +149,7 @@ def generate_image_transforms(images, labels):
             labels_with_transforms = np.append(labels_with_transforms, transformed_label, axis=0)
 
     return images_with_transforms, labels_with_transforms
+
 
 
 def create_individual_transform(image: np.array, transforms: dict):
