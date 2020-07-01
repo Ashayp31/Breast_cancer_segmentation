@@ -6,12 +6,11 @@ import pandas as pd
 import seaborn as sns
 from sklearn.metrics import accuracy_score, auc, classification_report, confusion_matrix, roc_curve
 from sklearn.preprocessing import LabelEncoder
-from tensorflow.keras.utils import to_categorical
 
 import config
 
 
-def plot_roc_curve(y_true: list, y_pred: list) -> None:
+def plot_roc_curve_binary(y_true: list, y_pred: list) -> None:
     """
     Plot ROC curve for binary classification.
     :param y_true: Ground truth of the data in one-hot-encoding type.
@@ -40,7 +39,7 @@ def plot_roc_curve(y_true: list, y_pred: list) -> None:
     plt.show()
 
 
-def plot_roc_curve_multiclasses(y_true: list, y_pred: list, label_encoder) -> None:
+def plot_roc_curve_multiclass(y_true: list, y_pred: list, label_encoder) -> None:
     """
     Plot ROC curve for multi classification.
 
@@ -155,7 +154,7 @@ def plot_comparison_chart(df: pd.DataFrame) -> None:
     :return: None.
     """
     title = "Accuracy Comparison"
-    
+
     # Plot.
     fig, ax = plt.subplots(figsize=(6, 5))
     sns.barplot(x='paper', y='accuracy', data=df)
@@ -207,9 +206,9 @@ def evaluate(y_true: list, y_pred: list, label_encoder: LabelEncoder, dataset: s
 
     # Plot ROC curve.
     if len(label_encoder.classes_) == 2:  # binary classification
-        plot_roc_curve(y_true, y_pred)
+        plot_roc_curve_binary(y_true, y_pred)
     elif len(label_encoder.classes_) >= 2:  # multi classification
-        plot_roc_curve_multiclasses(y_true, y_pred, label_encoder)
+        plot_roc_curve_multiclass(y_true, y_pred, label_encoder)
 
     # Compare our results with other papers' result.
     with open('other/other_results.json') as config_file:  # load other papers' result from json file
