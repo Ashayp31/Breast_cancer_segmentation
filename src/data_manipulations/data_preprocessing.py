@@ -127,7 +127,6 @@ def generate_image_transforms(images, labels):
                             'horizantal_flip': horizantal_flip}
 
     class_balance = get_class_balances(labels)
-    print(class_balance)
     max_count = max(class_balance)
     to_add = [max_count-i for i in class_balance]
 
@@ -136,17 +135,20 @@ def generate_image_transforms(images, labels):
             continue
         label = np.zeros(len(to_add))
         label[i] = 1
-        print(to_add[i])
-        print(label)
         indices = [j for j, x in enumerate(labels) if np.array_equal(x, label)]
-        print(indices)
         indiv_class_images = [images[j] for j in indices]
-        print(len(indiv_class_images))
-        for k in range(int(to_add[i])):
-            images_with_transforms = np.append(images_with_transforms, create_individual_transform(indiv_class_images[k % len(indiv_class_images)], available_transforms))
-            labels_with_transforms = np.append(labels_with_transforms, label)
 
-    return images, labels
+        for k in range(int(to_add[i])):
+            a = create_individual_transform(indiv_class_images[k % len(indiv_class_images)], available_transforms)
+            transformed_image = create_individual_transform(indiv_class_images[k % len(indiv_class_images)],
+                                                                           available_transforms)
+            transformed_image = transformed_image.reshape(1, config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE['WIDTH'], 1)
+
+            images_with_transforms = np.append(images_with_transforms, transformed_image, axis=0)
+            transformed_label = label.reshape(1,len(label))
+            labels_with_transforms = np.append(labels_with_transforms, transformed_label, axis=0)
+
+    return images_with_transforms, labels_with_transforms
 
 
 def create_individual_transform(image: np.array, transforms: dict):
