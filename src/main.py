@@ -78,6 +78,7 @@ def parse_command_line_arguments() -> None:
                         )
     args = parser.parse_args()
     config.dataset = args.dataset
+    config.model = args.model
     config.verbose_mode = args.verbose
 
 
