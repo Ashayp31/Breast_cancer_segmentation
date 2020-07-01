@@ -25,7 +25,7 @@ def import_dataset(data_dir: str, label_encoder) -> (np.ndarray, np.ndarray):
     for image_path in list(paths.list_images(data_dir)):
         images.append(preprocess_image(image_path))
         labels.append(image_path.split(os.path.sep)[-2])  # Extract label from path.
-        
+
     images, labels = generate_image_transforms(images, labels)
 
     # Convert the data and labels lists to NumPy arrays.
@@ -70,8 +70,8 @@ def encode_labels(labels_list: np.ndarray, label_encoder) -> np.ndarray:
 def dataset_stratified_split(split: float, dataset: np.ndarray, labels: np.ndarray) -> \
         (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """
-    Partition the data into training and testing splits using 80%/20% split. Stratify the split to keep the same class
-    distribution in both sets.
+    Partition the data into training and testing splits. Stratify the split to keep the same class distribution in both
+    sets and shuffle the order to avoid having imbalanced splits.
     :param split: Dataset split (e.g. if 0.2 is passed, then the dataset is split in 80%/20%).
     :param dataset: The dataset of pre-processed images.
     :param labels: The list of labels.
@@ -135,10 +135,11 @@ def generate_image_transforms(images, labels):
         images.append(create_individual_transform(benign_images[i % len(benign_images)], available_transforms))
         labels.append("benign_cases")
         images.append(create_individual_transform(malignant_images[i % len(malignant_images)],
-                                                                     available_transforms))
+                                                  available_transforms))
         labels.append("malignant_cases")
 
     return images, labels
+
 
 def create_individual_transform(image: np.array, transforms: dict):
     """
@@ -156,4 +157,3 @@ def create_individual_transform(image: np.array, transforms: dict):
         num_transforms += 1
 
     return transformed_image
-
