@@ -8,7 +8,7 @@ import config
 from data_manipulations.data_preprocessing import import_dataset, dataset_stratified_split
 from model.output import evaluate
 from model.train_test_model import train_network, test_network
-from model.vgg_model import *
+from model.vgg_model import generate_vgg_model
 from utils import print_runtime
 
 
@@ -41,10 +41,7 @@ def main() -> None:
         fill_mode="nearest")
 
     # Create CNN model
-    if config.model == "basic":
-        model = generate_vgg_model_basic([config.VGG_IMG_WIDTH, config.VGG_IMG_HEIGHT], config.CLASSES)
-    else:
-        model = generate_vgg_model_adv([config.VGG_IMG_WIDTH, config.VGG_IMG_HEIGHT], config.CLASSES)
+    model = generate_vgg_model(l_e.classes_.size)
 
     # Freeze VGG19 pre-trained layers
     model.layers[0].trainable = False
