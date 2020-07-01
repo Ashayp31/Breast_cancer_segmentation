@@ -43,7 +43,7 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
     )
 
     # plot the training loss and accuracy
-    plot_training_results(hist, "Initial_training")
+    plot_training_results(hist, "Initial_training", True)
 
     # Train again with slower learning rate unfreezing all layers
     # Train over fewer epochs to stop overfitting
@@ -67,7 +67,7 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
         ]
     )
 
-    plot_training_results(hist_2, "Fine_tuning_training")
+    plot_training_results(hist_2, "Fine_tuning_training", False)
 
     return model
 

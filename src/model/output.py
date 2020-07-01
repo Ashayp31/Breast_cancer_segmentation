@@ -222,12 +222,17 @@ def evaluate(y_true: list, y_pred: list, label_encoder: LabelEncoder, dataset: s
     plot_comparison_chart(df)
 
 
-def plot_training_results(hist_input, plot_name: str) -> None:
+def plot_training_results(hist_input, plot_name: str, is_frozen_layers) -> None:
     """
     Function to plot loss and accuracy over epoch count for training
+    :param is_frozen_layers: Boolean controlling whether some layers are frozen (for the plot title).
     :param hist_input: The training history.
     :param plot_name: The plot name.
     """
+    title = "Training Loss and Accuracy on Dataset"
+    if not is_frozen_layers:
+        title += " (all layers unfrozen)"
+
     n = len(hist_input.history["loss"])
     plt.style.use("ggplot")
     plt.figure()
@@ -235,7 +240,7 @@ def plot_training_results(hist_input, plot_name: str) -> None:
     plt.plot(np.arange(0, n), hist_input.history["val_loss"], label="val_loss")
     plt.plot(np.arange(0, n), hist_input.history["categorical_accuracy"], label="train_acc")
     plt.plot(np.arange(0, n), hist_input.history["val_categorical_accuracy"], label="val_acc")
-    plt.title("Training Loss and Accuracy on Dataset with all layers unfrozen")
+    plt.title(title)
     plt.xlabel("Epoch #")
     plt.ylabel("Loss/Accuracy")
     plt.legend(loc="lower left")
