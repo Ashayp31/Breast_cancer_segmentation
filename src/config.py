@@ -9,8 +9,8 @@ VGG_IMG_SIZE = {
     "WIDTH": 512
 }
 BATCH_SIZE = 5
-EPOCH_1 = 100
-EPOCH_2 = 40
+EPOCH_1 = 1
+EPOCH_2 = 1
 
 # Variables set by command line arguments/flags
 dataset = "mini-MIAS"   # The dataset to use.

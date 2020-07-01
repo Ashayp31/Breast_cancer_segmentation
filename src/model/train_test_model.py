@@ -99,7 +99,7 @@ def plot_training_results(hist_input, plot_name: str) -> None:
     plt.plot(np.arange(0, n), hist_input.history["val_loss"], label="val_loss")
     plt.plot(np.arange(0, n), hist_input.history["categorical_accuracy"], label="train_acc")
     plt.plot(np.arange(0, n), hist_input.history["val_categorical_accuracy"], label="val_acc")
-    plt.title("Training Loss and Accuracy on Dataset with all layers unfrozen")
+    plt.title("Training Loss and Accuracy Evolution on Dataset")
     plt.xlabel("Epoch #")
     plt.ylabel("Loss/Accuracy")
     plt.legend(loc="lower left")
