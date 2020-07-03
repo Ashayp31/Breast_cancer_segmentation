@@ -42,9 +42,9 @@ def main() -> None:
         model = train_network(model, X_train, y_train, X_val, y_val, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
 
     elif config.dataset == "CBIS-DDSM":
-        df = pd.read_csv("../data/CBIS-DDSM/training.csv")
-        list_IDs = df['img_path']
-        labels = df['label']
+        df = pd.read_csv("../data/CBIS-DDSM/training-Copy1.csv")
+        list_IDs = df['img_path'].values
+        labels = df['label'].values
 
         labels = encode_labels(labels, l_e)
 
@@ -59,8 +59,11 @@ def main() -> None:
 
 
     # Evaluate model.
-    y_pred = make_predictions(model, X_test)
-    evaluate(y_test, y_pred, l_e, config.dataset, 'N-B-M')
+    y_pred = make_predictions(model, X_val)
+    if config.dataset == "mini-MIAS":
+        evaluate(y_val, y_pred, l_e, config.dataset, 'N-B-M')
+    elif config.dataset == "CBIS-DDSM":
+        evaluate(y_val, y_pred, l_e, config.dataset, 'B-M')
 
     # Print training runtime.
     print_runtime("Total", round(time.time() - start_time, 2))

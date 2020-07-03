@@ -1,5 +1,5 @@
-from tensorflow.keras.losses import CategoricalCrossentropy
-from tensorflow.keras.metrics import CategoricalAccuracy
+from tensorflow.keras.losses import CategoricalCrossentropy, BinaryCrossentropy
+from tensorflow.keras.metrics import CategoricalAccuracy, BinaryAccuracy
 from tensorflow.keras.optimizers import Adam
 from tensorflow.python.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 
@@ -26,12 +26,13 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
     model.layers[0].trainable = False
 
     # Train model with frozen layers (all training with early stopping dictated by loss in validation over 3 runs).
-    model.compile(optimizer=Adam(lr=1e-3),
-                  loss=CategoricalCrossentropy(),
-                  metrics=[CategoricalAccuracy()])
 
     if config.dataset == "mini-MIAS":
-        hist = model.fit(
+        model.compile(optimizer=Adam(1e-3),
+                  loss=CategoricalCrossentropy(),
+                  metrics=[CategoricalAccuracy()])
+        
+        hist_1 = model.fit(
             x=train_x,
             y=train_y,
             batch_size=batch_s,
@@ -46,25 +47,31 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
         )
 
     elif config.dataset == "CBIS-DDSM":
-        hist_1 = model.fit(x=train_x,
+        model.compile(optimizer=Adam(lr=1e-3),
+                  loss=BinaryCrossentropy(),
+                  metrics=[BinaryAccuracy()])
+        
+        hist_1 = model.fit_generator(generator=train_x,
                   validation_data = val_x,
                             epochs = epochs1,
                                      callbacks = [
-            EarlyStopping(monitor='val_categorical_accuracy', patience=10, restore_best_weights=True),
+            EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True),
             ReduceLROnPlateau(patience=6)]
         )
 
     # Plot the training loss and accuracy.
-    plot_training_results(hist, "Initial_training", True)
+    plot_training_results(hist_1, "Initial_training", True)
 
     # Train a second time with a smaller learning rate and with all layers unfrozen
     # (train over fewer epochs to prevent over-fitting).
     model.layers[0].trainable = True
-    model.compile(optimizer=Adam(1e-5),  # Very low learning rate
-                  loss=CategoricalCrossentropy(),
-                  metrics=[CategoricalAccuracy()])
+    
 
     if config.dataset == "mini-MIAS":
+        model.compile(optimizer=Adam(1e-5),  # Very low learning rate
+                  loss=CategoricalCrossentropy(),
+                  metrics=[CategoricalAccuracy()])
+        
         hist_2 = model.fit(
             x=train_x,
             y=train_y,
@@ -79,11 +86,15 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
             ]
         )
     elif config.dataset == "CBIS-DDSM":
+        model.compile(optimizer=Adam(lr=1e-5), # Very low learning rate
+                  loss=BinaryCrossentropy(),
+                  metrics=[BinaryAccuracy()])
+        
         hist_2 = model.fit(x=train_x,
                   validation_data=val_x,
                   epochs=epochs2,
                   callbacks=[
-                      EarlyStopping(monitor='val_categorical_accuracy', patience=10, restore_best_weights=True),
+                      EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True),
                       ReduceLROnPlateau(patience=6)]
                   )
 

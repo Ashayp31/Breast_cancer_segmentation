@@ -43,7 +43,7 @@ class DataGenerator(Sequence):
     Generates data using Sequence to cycle through images to be processed for training
     """
 
-    def __init__(self, list_IDs, labels, batch_size=8,
+    def __init__(self, list_IDs, labels, batch_size=config.BATCH_SIZE,
                  dim=(config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE['WIDTH']),
                  n_channels=1, shuffle=True):
         'Initialization'
@@ -101,7 +101,7 @@ class DataGenerator(Sequence):
         # Generate data
         for i, ID in enumerate(list_IDs_temp):
             # process dicom image into array and resize to input dimensions and add to batch
-            X[i,] = load_dicom(list_IDs_temp, self.dim)
+            X[i,] = load_dicom(ID, self.dim)
 
         return X
 
