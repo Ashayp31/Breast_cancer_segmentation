@@ -37,6 +37,8 @@ where:
 
 ## Dataset usage
 
+### mini-MIAS dataset
+
 * This example will use the [mini-MIAS](http://peipa.essex.ac.uk/info/mias.html) dataset. After cloning the project, travel to the `data/mini-MIAS` directory (there should be 3 files in it).
 
 * Create `images_original` and `images_processed` directories in this directory: 
@@ -76,3 +78,9 @@ mkdir normal_cases
 ```
 python3 ../../../src/data_manipulations/mini-MIAS-initial-pre-processing.py
 ```
+
+### DDSM and CBIS-DDSM datasets
+
+These datasets are very large (exceeding 160GB) and more complex than the mini-MIAS dataset to use. Downloading and pre-processing them will therefore not be covered by this README. 
+
+Our generated CSV files to use these datasets can be found in the `/data/CBIS-DDSM` directory, but the mammograms will have to be downloaded separately. The DDSM dataset can be downloaded [here](http://www.eng.usf.edu/cvprg/Mammography/Database.html), while the CBIS-DDSM dataset can be downloaded [here](https://wiki.cancerimagingarchive.net/display/Public/CBIS-DDSM#5e40bd1f79d64f04b40cac57ceca9272).
