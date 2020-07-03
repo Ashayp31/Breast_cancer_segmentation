@@ -40,15 +40,12 @@ def main() -> None:
         horizontal_flip=True,
         fill_mode="nearest")
 
-    # Create CNN model
+    # Create and train CNN model.
     model = generate_vgg_model(l_e.classes_.size)
-
-    # Freeze VGG19 pre-trained layers
-    model.layers[0].trainable = False
-
     model = train_network(model, X_train, y_train, X_val, y_val, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
-    y_pred = test_network(model, X_test)
 
+    # Evaluate model.
+    y_pred = test_network(model, X_test)
     evaluate(y_test, y_pred, l_e, config.dataset, 'N-B-M')
 
     # Print training runtime.

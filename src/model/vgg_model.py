@@ -23,7 +23,7 @@ def generate_vgg_model(classes_len: int):
     img_input = Input(shape=(config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE['WIDTH'], 1))
     img_conc = Concatenate()([img_input, img_input, img_input])
 
-    # Generate VGG19 model with pre-trained imagenet weights, input as given above, without the fully connected layers
+    # Generate a VGG19 model with pre-trained ImageNet weights, input as given above, excluded fully connected layers.
     model_base = VGG19(include_top=False, weights='imagenet', input_tensor=img_conc)
 
     # Add fully connected layers
@@ -41,17 +41,21 @@ def generate_vgg_model(classes_len: int):
                          padding='same'))
         model.add(MaxPooling2D((2, 2), strides=(2, 2)))
 
-    # Flatten
+    # Flatten layer to convert each input into a 1D array (no parameters in this layer, just simple pre-processing).
     model.add(Flatten())
 
-    # Add fully connected layers
-    model.add(Dense(512, activation='relu', name='Dense_Intermediate_1'))
-    model.add(Dense(32, activation='relu', name='Dense_Intermediate_2'))
+    # Add fully connected hidden layers.
+    model.add(Dense(units=512, activation='relu', name='Dense_Intermediate_1'))
+    model.add(Dense(units=32, activation='relu', name='Dense_Intermediate_2'))
 
-    # Possible dropout for regularisation can be added later and experimented with
+    # Possible dropout for regularisation can be added later and experimented with:
     # model.add(Dropout(0.1, name='Dropout_Regularization'))
 
-    # Final output layer
+    # Final output layer that uses softmax activation function (because the classes are exclusive).
     model.add(Dense(classes_len, activation='softmax', name='Output'))
+
+    # Print model details if running in debug mode.
+    if config.verbose_mode:
+        model.summary()
 
     return model
