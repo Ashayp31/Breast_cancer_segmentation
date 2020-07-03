@@ -48,8 +48,8 @@ class DataGenerator(Sequence):
                  n_channels=1, shuffle=True):
         'Initialization'
         self.dim = dim
-        self.batch_size = batch_size
         self.labels = labels
+        self.batch_size = batch_size
         self.list_IDs = list_IDs
         self.n_channels = n_channels
         self.shuffle = shuffle

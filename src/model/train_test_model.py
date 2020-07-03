@@ -51,7 +51,7 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
                   loss=BinaryCrossentropy(),
                   metrics=[BinaryAccuracy()])
         
-        hist_1 = model.fit_generator(generator=train_x,
+        hist_1 = model.fit(x=train_x,
                   validation_data = val_x,
                             epochs = epochs1,
                                      callbacks = [
@@ -104,11 +104,14 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
     return model
 
 
-def make_predictions(model, x):
+def make_predictions(model, x_values):
     """
     :param model: The CNN model.
     :param x: Input.
     :return: Model predictions.
     """
-    y_predict = model.predict(x=x.astype("float32"), batch_size=10)
+    if config.dataset == "mini-MIAS":
+        y_predict = model.predict(x=x_values.astype("float32"), batch_size=10)
+    elif config.dataset == "CBIS-DDSM":
+        y_predict = model.predict(x=x_values)
     return y_predict
