@@ -79,4 +79,3 @@ def make_predictions(model, x):
     """
     y_predict = model.predict(x=x.astype("float32"), batch_size=10)
     return y_predict
-

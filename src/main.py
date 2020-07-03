@@ -11,6 +11,7 @@ from model.train_test_model import make_predictions, train_network
 from model.vgg_model import generate_vgg_model
 from utils import print_runtime
 
+
 def main() -> None:
     """
     Program entry point. Parses command line arguments to decide which dataset and model to use.
@@ -28,7 +29,8 @@ def main() -> None:
     # Split dataset into training/test/validation sets (60%/20%/20% split).
     X_train, X_test, y_train, y_test = dataset_stratified_split(split=0.20, dataset=images, labels=labels)
     X_train_rebalanced, y_train_rebalanced = generate_image_transforms(X_train, y_train)
-    X_train, X_val, y_train, y_val = dataset_stratified_split(split=0.25, dataset=X_train_rebalanced, labels=y_train_rebalanced)
+    X_train, X_val, y_train, y_val = dataset_stratified_split(split=0.25, dataset=X_train_rebalanced,
+                                                              labels=y_train_rebalanced)
 
     # Construct the training image generator for data augmentation.
     augmentation = ImageDataGenerator(
@@ -45,7 +47,7 @@ def main() -> None:
     model = train_network(model, X_train, y_train, X_val, y_val, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
 
     # Evaluate model.
-    y_pred = test_network(model, X_test)
+    y_pred = make_predictions(model, X_test)
     evaluate(y_test, y_pred, l_e, config.dataset, 'N-B-M')
 
     # Print training runtime.
