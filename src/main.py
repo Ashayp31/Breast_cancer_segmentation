@@ -1,11 +1,12 @@
 import argparse
 import time
 
+import pandas as pd
 from sklearn.preprocessing import LabelEncoder
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 import config
-from data_manipulations.data_preprocessing import import_dataset, dataset_stratified_split, generate_image_transforms
+from data_operations.data_generator import DataGenerator
+from data_operations.data_preprocessing import encode_labels, import_dataset, dataset_stratified_split, generate_image_transforms
 from model.output import evaluate
 from model.train_test_model import make_predictions, train_network
 from model.vgg_model import generate_vgg_model
@@ -22,29 +23,40 @@ def main() -> None:
     # Start recording time.
     start_time = time.time()
 
-    # Import dataset.
+    # Create label encoder.
     l_e = LabelEncoder()
-    images, labels = import_dataset(data_dir="../data/{}/images_processed".format(config.dataset), label_encoder=l_e)
 
-    # Split dataset into training/test/validation sets (60%/20%/20% split).
-    X_train, X_test, y_train, y_test = dataset_stratified_split(split=0.20, dataset=images, labels=labels)
-    X_train_rebalanced, y_train_rebalanced = generate_image_transforms(X_train, y_train)
-    X_train, X_val, y_train, y_val = dataset_stratified_split(split=0.25, dataset=X_train_rebalanced,
-                                                              labels=y_train_rebalanced)
+    if config.dataset == "mini-MIAS":
+        # Import entire dataset.
+        images, labels = import_dataset(data_dir="../data/{}/images_processed".format(config.dataset),
+                                        label_encoder=l_e)
 
-    # Construct the training image generator for data augmentation.
-    augmentation = ImageDataGenerator(
-        rotation_range=20,
-        zoom_range=0.15,
-        width_shift_range=0.2,
-        height_shift_range=0.2,
-        shear_range=0.15,
-        horizontal_flip=True,
-        fill_mode="nearest")
+        # Split dataset into training/test/validation sets (60%/20%/20% split).
+        X_train, X_test, y_train, y_test = dataset_stratified_split(split=0.20, dataset=images, labels=labels)
+        X_train_rebalanced, y_train_rebalanced = generate_image_transforms(X_train, y_train)
+        X_train, X_val, y_train, y_val = dataset_stratified_split(split=0.25, dataset=X_train_rebalanced,
+                                                                  labels=y_train_rebalanced)
 
-    # Create and train CNN model.
-    model = generate_vgg_model(l_e.classes_.size)
-    model = train_network(model, X_train, y_train, X_val, y_val, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
+        # Create and train CNN model.
+        model = generate_vgg_model(l_e.classes_.size)
+        model = train_network(model, X_train, y_train, X_val, y_val, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
+
+    elif config.dataset == "CBIS-DDSM":
+        df = pd.read_csv("../data/CBIS-DDSM/training.csv")
+        list_IDs = df['img_path']
+        labels = df['label']
+
+        labels = encode_labels(labels, l_e)
+
+        X_train, X_val, y_train, y_val = dataset_stratified_split(split=0.25, dataset=list_IDs, labels=labels)
+
+        training_generator = DataGenerator(X_train, y_train)
+        validation_generator = DataGenerator(X_val, y_val)
+
+        # Create and train CNN model.
+        model = generate_vgg_model(l_e.classes_.size)
+        model = train_network(model, training_generator, None, validation_generator, None, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
+
 
     # Evaluate model.
     y_pred = make_predictions(model, X_test)

@@ -5,6 +5,7 @@ from tensorflow.python.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 
 from model.output import plot_training_results
 
+import config
 
 def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epochs2):
     """
@@ -28,19 +29,30 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
     model.compile(optimizer=Adam(lr=1e-3),
                   loss=CategoricalCrossentropy(),
                   metrics=[CategoricalAccuracy()])
-    hist = model.fit(
-        x=train_x,
-        y=train_y,
-        batch_size=batch_s,
-        steps_per_epoch=len(train_x) // batch_s,
-        validation_data=(val_x, val_y),
-        validation_steps=len(val_x) // batch_s,
-        epochs=epochs1,
-        callbacks=[
+
+    if config.dataset == "mini-MIAS":
+        hist = model.fit(
+            x=train_x,
+            y=train_y,
+            batch_size=batch_s,
+            steps_per_epoch=len(train_x) // batch_s,
+            validation_data=(val_x, val_y),
+            validation_steps=len(val_x) // batch_s,
+            epochs=epochs1,
+            callbacks=[
+                EarlyStopping(monitor='val_categorical_accuracy', patience=10, restore_best_weights=True),
+                ReduceLROnPlateau(patience=6)
+            ]
+        )
+
+    elif config.dataset == "CBIS-DDSM":
+        hist_1 = model.fit(x=train_x,
+                  validation_data = val_x,
+                            epochs = epochs1,
+                                     callbacks = [
             EarlyStopping(monitor='val_categorical_accuracy', patience=10, restore_best_weights=True),
-            ReduceLROnPlateau(patience=6)
-        ]
-    )
+            ReduceLROnPlateau(patience=6)]
+        )
 
     # Plot the training loss and accuracy.
     plot_training_results(hist, "Initial_training", True)
@@ -51,19 +63,29 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
     model.compile(optimizer=Adam(1e-5),  # Very low learning rate
                   loss=CategoricalCrossentropy(),
                   metrics=[CategoricalAccuracy()])
-    hist_2 = model.fit(
-        x=train_x,
-        y=train_y,
-        batch_size=batch_s,
-        steps_per_epoch=len(train_x) // batch_s,
-        validation_data=(val_x, val_y),
-        validation_steps=len(val_x) // batch_s,
-        epochs=epochs2,
-        callbacks=[
-            EarlyStopping(monitor='val_categorical_accuracy', patience=10, restore_best_weights=True),
-            ReduceLROnPlateau(patience=6)
-        ]
-    )
+
+    if config.dataset == "mini-MIAS":
+        hist_2 = model.fit(
+            x=train_x,
+            y=train_y,
+            batch_size=batch_s,
+            steps_per_epoch=len(train_x) // batch_s,
+            validation_data=(val_x, val_y),
+            validation_steps=len(val_x) // batch_s,
+            epochs=epochs2,
+            callbacks=[
+                EarlyStopping(monitor='val_categorical_accuracy', patience=10, restore_best_weights=True),
+                ReduceLROnPlateau(patience=6)
+            ]
+        )
+    elif config.dataset == "CBIS-DDSM":
+        hist_2 = model.fit(x=train_x,
+                  validation_data=val_x,
+                  epochs=epochs2,
+                  callbacks=[
+                      EarlyStopping(monitor='val_categorical_accuracy', patience=10, restore_best_weights=True),
+                      ReduceLROnPlateau(patience=6)]
+                  )
 
     # Plot the training loss and accuracy.
     plot_training_results(hist_2, "Fine_tuning_training", False)
