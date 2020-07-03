@@ -103,7 +103,7 @@ def random_noise(image_array: np.ndarray):
     return sk.util.random_noise(image_array)
 
 
-def horizantal_flip(image_array: np.ndarray):
+def horizontal_flip(image_array: np.ndarray):
     """
     Flip image
     :param image_array: input image
@@ -124,11 +124,11 @@ def generate_image_transforms(images, labels):
 
     available_transforms = {'rotate': random_rotation,
                             'noise': random_noise,
-                            'horizantal_flip': horizantal_flip}
+                            'horizontal_flip': horizontal_flip}
 
     class_balance = get_class_balances(labels)
     max_count = max(class_balance)
-    to_add = [max_count-i for i in class_balance]
+    to_add = [max_count - i for i in class_balance]
 
     for i in range(len(to_add)):
         if int(to_add[i]) == 0:
@@ -141,20 +141,20 @@ def generate_image_transforms(images, labels):
         for k in range(int(to_add[i])):
             a = create_individual_transform(indiv_class_images[k % len(indiv_class_images)], available_transforms)
             transformed_image = create_individual_transform(indiv_class_images[k % len(indiv_class_images)],
-                                                                           available_transforms)
-            transformed_image = transformed_image.reshape(1, config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE['WIDTH'], 1)
+                                                            available_transforms)
+            transformed_image = transformed_image.reshape(1, config.VGG_IMG_SIZE['HEIGHT'],
+                                                          config.VGG_IMG_SIZE['WIDTH'], 1)
 
             images_with_transforms = np.append(images_with_transforms, transformed_image, axis=0)
-            transformed_label = label.reshape(1,len(label))
+            transformed_label = label.reshape(1, len(label))
             labels_with_transforms = np.append(labels_with_transforms, transformed_label, axis=0)
 
     return images_with_transforms, labels_with_transforms
 
 
-
 def create_individual_transform(image: np.array, transforms: dict):
     """
-    Create transormation of an individual image
+    Create transformation of an individual image
     :param image: input image
     :param transforms: the possible transforms to do on the image
     :return: transformed image
@@ -172,7 +172,7 @@ def create_individual_transform(image: np.array, transforms: dict):
 
 def get_class_balances(y_vals):
     """
-    Count occurence of each class
+    Count occurrences of each class.
     :param y_vals: labels
     :return: array count of each class
     """
@@ -183,4 +183,3 @@ def get_class_balances(y_vals):
             counts[i] += y_val[i]
 
     return (counts.tolist())
-
