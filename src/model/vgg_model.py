@@ -31,7 +31,7 @@ def generate_vgg_model(classes_len: int):
     # Start with base model consisting of convolutional layers
     model.add(model_base)
 
-    # Generate additional Convolutional layers
+    # Generate additional convolutional layers
     if config.model == "advanced":
         model.add(Conv2D(1024, (3, 3),
                          activation='relu',
