@@ -8,7 +8,7 @@ VGG_IMG_SIZE = {
     "HEIGHT": 512,
     "WIDTH": 512
 }
-BATCH_SIZE = 16
+BATCH_SIZE = 8
 EPOCH_1 = 100
 EPOCH_2 = 50
 

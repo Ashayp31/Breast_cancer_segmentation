@@ -56,6 +56,8 @@ def main() -> None:
         # Create and train CNN model.
         model = generate_vgg_model(l_e.classes_.size)
         model = train_network(model, training_generator, None, validation_generator, None, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
+        
+    model.save("../saved_models/{}-model_{}-dataset.h5".format(config.model, config.dataset))
 
 
     # Evaluate model.

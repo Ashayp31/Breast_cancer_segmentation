@@ -77,7 +77,7 @@ class DataGenerator(Sequence):
         # Generate data
         X = self.__data_generation(list_IDs_temp)
 
-        return X, y
+        return X, np.array(y)
 
     def on_epoch_end(self):
         """
