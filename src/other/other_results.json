@@ -34,5 +34,25 @@
         "accuracy": "0.925"
       }
     ]
+  },
+  "CBIS-DDSM": {
+    "B-M": [
+        {
+          "paper": "Agarwal R, Diaz O, Lladó X, Martí R.",
+          "accuracy": "0.92"
+        },
+        {
+          "paper": "Sarosa SJ, Utaminingrum F, Bachtiar FA.",
+          "accuracy": "0.6303"
+        },
+        {
+          "paper": "Chen Y, Zhang Q, Wu Y, Liu B, Wang M, Lin Y.",
+          "accuracy": "0.9315"
+        },
+        {
+          "paper": "Falconí LG, Pérez M, Aguilar WG.",
+          "accuracy": "0.784"
+        }
+    ]
   }
 }
