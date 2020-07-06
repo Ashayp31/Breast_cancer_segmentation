@@ -5,7 +5,7 @@ from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 import config
-from data_manipulations.data_preprocessing import import_dataset, dataset_stratified_split, generate_image_transforms
+from data_operations.data_preprocessing import import_dataset, dataset_stratified_split, generate_image_transforms
 from model.output import evaluate
 from model.train_test_model import make_predictions, train_network
 from model.vgg_model import generate_vgg_model
