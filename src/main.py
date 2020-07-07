@@ -79,6 +79,8 @@ def main() -> None:
     elif config.dataset == "CBIS-DDSM":
         y_pred = make_predictions(model, dataset_val)
         evaluate(y_val, y_pred, l_e, config.dataset, 'B-M')
+        
+    print(y_pred)
 
     # Print training runtime.
     print_runtime("Total", round(time.time() - start_time, 2))
@@ -108,17 +110,6 @@ def parse_command_line_arguments() -> None:
     config.dataset = args.dataset
     config.model = args.model
     config.verbose_mode = args.verbose
-    
-    
-def parse_function(filename, label):
-    image_bytes = tf.io.read_file(filename)
-    image = tfio.image.decode_dicom_image(image_bytes,color_dim = True, scale="auto",  dtype=tf.uint16)
-    as_png = tf.image.encode_png(image[0])
-    decoded_png = tf.io.decode_png(as_png, channels=1)
-    image = tf.image.resize(decoded_png, [512, 512])
-    image /= 255
-
-    return image, label
 
 
 if __name__ == '__main__':

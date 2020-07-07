@@ -19,7 +19,7 @@ def plot_roc_curve_binary(y_true: list, y_pred: list) -> None:
     """
     # Calculate fpr, tpr, and area under the curve(auc)
     # Transform y_true and y_pred from one-hot-encoding to the label-encoding.
-    fpr, tpr, _ = roc_curve(y_true, np.argmax(y_pred, axis=1))
+    fpr, tpr, _ = roc_curve(y_true, y_pred)
     roc_auc = auc(fpr, tpr)
 
     # Plot.
@@ -188,7 +188,8 @@ def evaluate(y_true: list, y_pred: list, label_encoder: LabelEncoder, dataset: s
     # Inverse transform y_true and y_pred from one-hot-encoding to original label.
     if label_encoder.classes_.size == 2:
         y_true_inv = y_true
-        y_pred_inv = np.argmax(y_pred, axis=1)
+#         y_pred_inv = np.argmax(y_pred, axis=1)
+        y_pred_inv = np.round_(y_pred, 0)
     else:
         y_true_inv = label_encoder.inverse_transform(np.argmax(y_true, axis=1))
         y_pred_inv = label_encoder.inverse_transform(np.argmax(y_pred, axis=1))

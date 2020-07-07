@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 import tensorflow_io as tfio
 import numpy as np
 from data_operations.dataset_feed import create_dataset
+from PIL import Image
 
 
 
@@ -32,7 +33,23 @@ def main() -> None:
     image = resize(dataset.pixel_array, [512, 512])
     imgplot = plt.imshow(image, cmap=plt.cm.bone)
     plt.savefig("../output/image_resized.png")
+    
+    
+    # resize keep aspect ratio
+    df = pd.read_csv("../data/CBIS-DDSM/training.csv")
+    list_IDs = df['img_path'].values
+    labels = df['label'].values
+               
+    X_train, X_val, y_train, y_val = dataset_stratified_split(split=0.25, dataset=list_IDs, labels=labels)
 
+    dataset_train = create_dataset(X_train, y_train) 
+
+    label = labels[0]
+    list_ID = list_IDs[0]
+    
+    image = parse_function(list_ID, label)
+    plt.imshow(np.squeeze(image[0].numpy()), cmap='gray')
+    plt.savefig("../output/image_maintained_AR.png")
 
     
 
@@ -65,10 +82,10 @@ def parse_command_line_arguments() -> None:
     
 def parse_function(filename, label):
     image_bytes = tf.io.read_file(filename)
-    image = tfio.image.decode_dicom_image(image_bytes,color_dim = True, scale="auto",  dtype=tf.uint16)
+    image = tfio.image.decode_dicom_image(image_bytes,color_dim = True,  dtype=tf.uint16)
     as_png = tf.image.encode_png(image[0])
     decoded_png = tf.io.decode_png(as_png, channels=1)
-    image = tf.image.resize(decoded_png, [512, 512])
+    image = tf.image.resize_with_pad(decoded_png, 512, 512)
     image /= 255
 
     return image, label
