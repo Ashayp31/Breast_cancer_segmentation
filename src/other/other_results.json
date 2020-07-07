@@ -38,19 +38,19 @@
   "CBIS-DDSM": {
     "B-M": [
         {
-          "paper": "Agarwal R, Diaz O, Lladó X, Martí R.",
+          "paper": "Agarwal R et al.",
           "accuracy": "0.92"
         },
         {
-          "paper": "Sarosa SJ, Utaminingrum F, Bachtiar FA.",
+          "paper": "Sarosa SJ et al.",
           "accuracy": "0.6303"
         },
         {
-          "paper": "Chen Y, Zhang Q, Wu Y, Liu B, Wang M, Lin Y.",
+          "paper": "Chen Y et al.",
           "accuracy": "0.9315"
         },
         {
-          "paper": "Falconí LG, Pérez M, Aguilar WG.",
+          "paper": "Falconí LG et al.",
           "accuracy": "0.784"
         }
     ]

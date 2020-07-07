@@ -52,7 +52,11 @@ def generate_vgg_model(classes_len: int):
     # model.add(Dropout(0.1, name='Dropout_Regularization'))
 
     # Final output layer that uses softmax activation function (because the classes are exclusive).
-    model.add(Dense(classes_len, activation='softmax', name='Output'))
+    if classes_len == 2:
+        model.add(Dense(1, activation='sigmoid', name='Output'))
+    else:
+        model.add(Dense(classes_len, activation='softmax', name='Output'))
+
 
     # Print model details if running in debug mode.
     if config.verbose_mode:

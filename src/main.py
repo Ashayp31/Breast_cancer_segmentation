@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 
 import config
-from data_operations.data_preprocessing import import_dataset, dataset_stratified_split, generate_image_transforms
+from data_operations.data_preprocessing import encode_labels, import_dataset, dataset_stratified_split, generate_image_transforms
 from model.output import evaluate
 from model.train_test_model import make_predictions, train_network
 from model.vgg_model import generate_vgg_model
@@ -54,8 +54,10 @@ def main() -> None:
         df = pd.read_csv("../data/CBIS-DDSM/training-Copy1.csv")
         list_IDs = df['img_path'].values
         labels = df['label'].values
-
+       
         labels = encode_labels(labels, l_e)
+        
+        print(labels.sum())
 
         X_train, X_val, y_train, y_val = dataset_stratified_split(split=0.25, dataset=list_IDs, labels=labels)
 
@@ -80,7 +82,6 @@ def main() -> None:
         y_pred = make_predictions(model, dataset_val)
         evaluate(y_val, y_pred, l_e, config.dataset, 'B-M')
 
-    print(y_pred)
     # Print training runtime.
     print_runtime("Total", round(time.time() - start_time, 2))
 
