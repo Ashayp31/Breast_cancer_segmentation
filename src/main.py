@@ -51,14 +51,12 @@ def main() -> None:
         model = train_network(model, X_train, y_train, X_val, y_val, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
 
     elif config.dataset == "CBIS-DDSM":
-        df = pd.read_csv("../data/CBIS-DDSM/training-Copy1.csv")
+        df = pd.read_csv("../data/CBIS-DDSM/training.csv")
         list_IDs = df['img_path'].values
         labels = df['label'].values
        
         labels = encode_labels(labels, l_e)
         
-        print(labels.sum())
-
         X_train, X_val, y_train, y_val = dataset_stratified_split(split=0.25, dataset=list_IDs, labels=labels)
 
         dataset_train = create_dataset(X_train, y_train) 
@@ -111,17 +109,6 @@ def parse_command_line_arguments() -> None:
     config.model = args.model
     config.verbose_mode = args.verbose
     
-    
-def parse_function(filename, label):
-    image_bytes = tf.io.read_file(filename)
-    image = tfio.image.decode_dicom_image(image_bytes,color_dim = True, scale="auto",  dtype=tf.uint16)
-    as_png = tf.image.encode_png(image[0])
-    decoded_png = tf.io.decode_png(as_png, channels=1)
-    image = tf.image.resize(decoded_png, [512, 512])
-    image /= 255
-
-    return image, label
-
 
 if __name__ == '__main__':
     main()
