@@ -31,7 +31,7 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
         model.compile(optimizer=Adam(1e-3),
                   loss=CategoricalCrossentropy(),
                   metrics=[CategoricalAccuracy()])
-        
+
         hist_1 = model.fit(
             x=train_x,
             y=train_y,
@@ -41,8 +41,8 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
             validation_steps=len(val_x) // batch_s,
             epochs=epochs1,
             callbacks=[
-                EarlyStopping(monitor='val_categorical_accuracy', patience=10, restore_best_weights=True),
-                ReduceLROnPlateau(patience=6)
+                EarlyStopping(monitor='val_categorical_accuracy', patience=8, restore_best_weights=True),
+                ReduceLROnPlateau(patience=4)
             ]
         )
 
@@ -55,8 +55,8 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
                   validation_data = val_x,
                             epochs = epochs1,
                                      callbacks = [
-            EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True),
-            ReduceLROnPlateau(patience=6)]
+            EarlyStopping(monitor='val_loss', patience=8, restore_best_weights=True),
+            ReduceLROnPlateau(patience=4)]
         )
 
     # Plot the training loss and accuracy.

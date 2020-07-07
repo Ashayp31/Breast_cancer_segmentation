@@ -11,6 +11,14 @@ from model.output import evaluate
 from model.train_test_model import make_predictions, train_network
 from model.vgg_model import generate_vgg_model
 from utils import print_runtime
+import tensorflow as tf
+from skimage.transform import resize
+import pydicom
+import matplotlib.pyplot as plt
+import tensorflow_io as tfio
+import numpy as np
+from data_operations.dataset_feed import create_dataset
+
 
 
 def main() -> None:
@@ -18,6 +26,8 @@ def main() -> None:
     Program entry point. Parses command line arguments to decide which dataset and model to use.
     :return: None.
     """
+    print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
+
     parse_command_line_arguments()
 
     # Start recording time.
@@ -42,7 +52,7 @@ def main() -> None:
         model = train_network(model, X_train, y_train, X_val, y_val, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
 
     elif config.dataset == "CBIS-DDSM":
-        df = pd.read_csv("../data/CBIS-DDSM/training.csv")
+        df = pd.read_csv("../data/CBIS-DDSM/training-Copy1.csv")
         list_IDs = df['img_path'].values
         labels = df['label'].values
 
@@ -50,12 +60,15 @@ def main() -> None:
 
         X_train, X_val, y_train, y_val = dataset_stratified_split(split=0.25, dataset=list_IDs, labels=labels)
 
-        training_generator = DataGenerator(X_train, y_train)
-        validation_generator = DataGenerator(X_val, y_val)
+        dataset_train = create_dataset(X_train, y_train) 
+        dataset_val = create_dataset(X_val, y_val)
 
+        
         # Create and train CNN model.
         model = generate_vgg_model(l_e.classes_.size)
-        model = train_network(model, training_generator, None, validation_generator, None, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
+        model = train_network(model, dataset_train, None, dataset_val, None, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
+        
+
         
     model.save("../saved_models/{}-model_{}-dataset.h5".format(config.model, config.dataset))
 
@@ -65,9 +78,10 @@ def main() -> None:
         y_pred = make_predictions(model, X_val)
         evaluate(y_val, y_pred, l_e, config.dataset, 'N-B-M')
     elif config.dataset == "CBIS-DDSM":
-        y_pred = make_predictions(model, validation_generator)
+        y_pred = make_predictions(model, dataset_val)
         evaluate(y_val, y_pred, l_e, config.dataset, 'B-M')
 
+    print(y_pred)
     # Print training runtime.
     print_runtime("Total", round(time.time() - start_time, 2))
 
@@ -96,6 +110,17 @@ def parse_command_line_arguments() -> None:
     config.dataset = args.dataset
     config.model = args.model
     config.verbose_mode = args.verbose
+    
+    
+def parse_function(filename, label):
+    image_bytes = tf.io.read_file(filename)
+    image = tfio.image.decode_dicom_image(image_bytes,color_dim = True, scale="auto",  dtype=tf.uint16)
+    as_png = tf.image.encode_png(image[0])
+    decoded_png = tf.io.decode_png(as_png, channels=1)
+    image = tf.image.resize(decoded_png, [512, 512])
+    image /= 255
+
+    return image, label
 
 
 if __name__ == '__main__':
