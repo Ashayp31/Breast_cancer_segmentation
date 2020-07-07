@@ -26,3 +26,8 @@ Calc-Training_P_00680_RIGHT_CC,/cs/tmp/datasets/CBIS-DDSM/Calc-Training_P_00680_
 Calc-Training_P_00680_RIGHT_MLO,/cs/tmp/datasets/CBIS-DDSM/Calc-Training_P_00680_RIGHT_MLO/08-07-2016-DDSM-88980/1.000000-full mammogram images-11545/1-1.dcm,BENIGN
 Calc-Training_P_00682_RIGHT_CC,/cs/tmp/datasets/CBIS-DDSM/Calc-Training_P_00682_RIGHT_CC/08-07-2016-DDSM-27862/1.000000-full mammogram images-92044/1-1.dcm,BENIGN
 Calc-Training_P_00682_RIGHT_MLO,/cs/tmp/datasets/CBIS-DDSM/Calc-Training_P_00682_RIGHT_MLO/08-07-2016-DDSM-67591/1.000000-full mammogram images-32040/1-1.dcm,BENIGN
+Calc-Training_P_00136_LEFT_CC,/cs/tmp/datasets/CBIS-DDSM/Calc-Training_P_00136_LEFT_CC/08-07-2016-DDSM-17032/1.000000-full mammogram images-19461/1-1.dcm,MALIGNANT
+Calc-Training_P_00136_LEFT_MLO,/cs/tmp/datasets/CBIS-DDSM/Calc-Training_P_00136_LEFT_MLO/08-07-2016-DDSM-69745/1.000000-full mammogram images-19459/1-1.dcm,MALIGNANT
+Calc-Training_P_00151_RIGHT_MLO,/cs/tmp/datasets/CBIS-DDSM/Calc-Training_P_00151_RIGHT_MLO/08-07-2016-DDSM-98042/1.000000-full mammogram images-03094/1-1.dcm,BENIGN
+Calc-Training_P_00157_LEFT_CC,/cs/tmp/datasets/CBIS-DDSM/Calc-Training_P_00157_LEFT_CC/08-07-2016-DDSM-49721/1.000000-full mammogram images-42941/1-1.dcm,MALIGNANT
+Calc-Training_P_00157_LEFT_MLO,/cs/tmp/datasets/CBIS-DDSM/Calc-Training_P_00157_LEFT_MLO/08-07-2016-DDSM-71220/1.000000-full mammogram images-74106/1-1.dcm,MALIGNANT
