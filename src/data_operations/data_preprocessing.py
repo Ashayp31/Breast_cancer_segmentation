@@ -62,7 +62,10 @@ def encode_labels(labels_list: np.ndarray, label_encoder) -> np.ndarray:
     :return: The encoded list of labels in NumPy array format.
     """
     labels = label_encoder.fit_transform(labels_list)
-    return to_categorical(labels)
+    if label_encoder.classes_.size == 2:
+        return labels
+    else:
+        return to_categorical(labels)
 
 
 def dataset_stratified_split(split: float, dataset: np.ndarray, labels: np.ndarray) -> \
