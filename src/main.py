@@ -5,8 +5,7 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 
 import config
-from data_operations.data_generator import DataGenerator
-from data_operations.data_preprocessing import encode_labels, import_dataset, dataset_stratified_split, generate_image_transforms
+from data_operations.data_preprocessing import import_dataset, dataset_stratified_split, generate_image_transforms
 from model.output import evaluate
 from model.train_test_model import make_predictions, train_network
 from model.vgg_model import generate_vgg_model
