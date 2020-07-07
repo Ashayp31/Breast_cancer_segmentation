@@ -51,14 +51,12 @@ def main() -> None:
         model = train_network(model, X_train, y_train, X_val, y_val, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
 
     elif config.dataset == "CBIS-DDSM":
-        df = pd.read_csv("../data/CBIS-DDSM/training-Copy1.csv")
+        df = pd.read_csv("../data/CBIS-DDSM/training.csv")
         list_IDs = df['img_path'].values
         labels = df['label'].values
        
         labels = encode_labels(labels, l_e)
         
-        print(labels.sum())
-
         X_train, X_val, y_train, y_val = dataset_stratified_split(split=0.25, dataset=list_IDs, labels=labels)
 
         dataset_train = create_dataset(X_train, y_train) 
