@@ -238,8 +238,12 @@ def plot_training_results(hist_input, plot_name: str, is_frozen_layers) -> None:
     plt.figure()
     plt.plot(np.arange(0, n), hist_input.history["loss"], label="train_loss")
     plt.plot(np.arange(0, n), hist_input.history["val_loss"], label="val_loss")
-    plt.plot(np.arange(0, n), hist_input.history["categorical_accuracy"], label="train_acc")
-    plt.plot(np.arange(0, n), hist_input.history["val_categorical_accuracy"], label="val_acc")
+    if config.dataset == "mini-MIAS":
+        plt.plot(np.arange(0, n), hist_input.history["categorical_accuracy"], label="train_acc")
+        plt.plot(np.arange(0, n), hist_input.history["val_categorical_accuracy"], label="val_acc")
+    elif config.dataset == "CBIS-DDSM":
+        plt.plot(np.arange(0, n), hist_input.history["binary_accuracy"], label="train_acc")
+        plt.plot(np.arange(0, n), hist_input.history["val_loss"], label="val_loss")
     plt.title(title)
     plt.xlabel("Epoch #")
     plt.ylabel("Loss/Accuracy")
