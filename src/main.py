@@ -69,9 +69,9 @@ def main() -> None:
         
 
     if config.training == True:    
-        model.save("../saved_models/{}_test-model_{}-dataset.h5".format(config.model, config.dataset))
+        model.save("../saved_models/{}_-model_{}-dataset.h5".format(config.model, config.dataset))
     else:
-        model = load_model("../saved_models/{}_test-model_{}-dataset.h5".format(config.model, config.dataset))
+        model = load_model("../saved_models/{}_-model_{}-dataset.h5".format(config.model, config.dataset))
 
     # Evaluate model.
     if config.dataset == "mini-MIAS":
