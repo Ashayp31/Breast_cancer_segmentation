@@ -80,8 +80,6 @@ def main() -> None:
         y_pred = make_predictions(model, dataset_val)
         evaluate(y_val, y_pred, l_e, config.dataset, 'B-M')
         
-    print(y_pred)
-
     # Print training runtime.
     print_runtime("Total", round(time.time() - start_time, 2))
 
