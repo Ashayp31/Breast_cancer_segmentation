@@ -117,8 +117,7 @@ def parse_command_line_arguments() -> None:
     config.model = args.model
     config.verbose_mode = args.verbose
     config.training = args.training
-    print ('config.training = ' + str(config.training))
-
+    
 
 if __name__ == '__main__':
     main()
