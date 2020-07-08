@@ -54,7 +54,7 @@ def plot_roc_curve_multiclass(y_true: list, y_pred: list, label_encoder) -> None
     roc_auc = dict()
 
     # Calculate fpr, tpr, area under the curve(auc) of each class.
-    for i in range(len(label_encoder.classes_)):
+    for i in range(label_encoder.classes_.size):
         fpr[i], tpr[i], _ = roc_curve(y_true[:, i], y_pred[:, i])
         roc_auc[i] = auc(fpr[i], tpr[i])
 
@@ -62,10 +62,10 @@ def plot_roc_curve_multiclass(y_true: list, y_pred: list, label_encoder) -> None
     all_fpr = np.unique(np.concatenate([fpr[i] for i in range(len(label_encoder.classes_))]))
 
     mean_tpr = np.zeros_like(all_fpr)
-    for i in range(len(label_encoder.classes_)):
+    for i in range(label_encoder.classes_.size):
         mean_tpr += np.interp(all_fpr, fpr[i], tpr[i])
 
-    mean_tpr /= len(label_encoder.classes_)
+    mean_tpr /= label_encoder.classes_.size
 
     fpr['macro'] = all_fpr
     tpr['macro'] = mean_tpr
@@ -108,7 +108,7 @@ def plot_roc_curve_multiclass(y_true: list, y_pred: list, label_encoder) -> None
     plt.ylabel('True Positive Rate')
     plt.title('Receiver Operating Characteristic')
     plt.legend(loc='lower right')
-    plt.savefig("../output/ROC-binary_{}-model_{}-dataset.png".format(config.model, config.dataset))
+    plt.savefig("../output/ROC-multi_{}-model_{}-dataset.png".format(config.model, config.dataset))
     plt.show()
 
 
@@ -210,9 +210,9 @@ def evaluate(y_true: list, y_pred: list, label_encoder: LabelEncoder, dataset: s
     plot_confusion_matrix(cm_normalized, '.2f', label_encoder, True)
 
     # Plot ROC curve.
-    if len(label_encoder.classes_) == 2:  # binary classification
+    if label_encoder.classes_.size == 2:  # binary classification
         plot_roc_curve_binary(y_true, y_pred)
-    elif len(label_encoder.classes_) >= 2:  # multi classification
+    elif label_encoder.classes_.size >= 2:  # multi classification
         plot_roc_curve_multiclass(y_true, y_pred, label_encoder)
 
     # Compare our results with other papers' result.

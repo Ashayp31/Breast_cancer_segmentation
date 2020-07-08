@@ -16,3 +16,4 @@ EPOCH_2 = 50
 dataset = "mini-MIAS"   # The dataset to use.
 model = "basic"         # The model to use.
 verbose_mode = False    # Boolean used to print additional logs for debugging purposes.
+training = True         # Boolean used to train model from scratch and make predictions otherwise load pre-trained model for predictions

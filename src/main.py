@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import tensorflow_io as tfio
 import numpy as np
 from data_operations.dataset_feed import create_dataset
-
+from tensorflow.keras.models import load_model
 
 
 def main() -> None:
@@ -45,10 +45,10 @@ def main() -> None:
         X_train_rebalanced, y_train_rebalanced = generate_image_transforms(X_train, y_train)
         X_train, X_val, y_train, y_val = dataset_stratified_split(split=0.25, dataset=X_train_rebalanced,
                                                                   labels=y_train_rebalanced)
-
-        # Create and train CNN model.
-        model = generate_vgg_model(l_e.classes_.size)
-        model = train_network(model, X_train, y_train, X_val, y_val, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
+        if config.training == True:
+            # Create and train CNN model.
+            model = generate_vgg_model(l_e.classes_.size)
+            model = train_network(model, X_train, y_train, X_val, y_val, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
 
     elif config.dataset == "CBIS-DDSM":
         df = pd.read_csv("../data/CBIS-DDSM/training.csv")
@@ -62,15 +62,16 @@ def main() -> None:
         dataset_train = create_dataset(X_train, y_train) 
         dataset_val = create_dataset(X_val, y_val)
 
-        
-        # Create and train CNN model.
-        model = generate_vgg_model(l_e.classes_.size)
-        model = train_network(model, dataset_train, None, dataset_val, None, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
+        if config.training == True:
+            # Create and train CNN model.
+            model = generate_vgg_model(l_e.classes_.size)
+            model = train_network(model, dataset_train, None, dataset_val, None, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
         
 
-        
-    model.save("../saved_models/{}-model_{}-dataset.h5".format(config.model, config.dataset))
-
+    if config.training == True:    
+        model.save("../saved_models/{}-model_{}-dataset.h5".format(config.model, config.dataset))
+    else:
+        model = load_model("../saved_models/{}-model_{}-dataset.h5".format(config.model, config.dataset))
 
     # Evaluate model.
     if config.dataset == "mini-MIAS":
@@ -104,11 +105,17 @@ def parse_command_line_arguments() -> None:
                         action="store_true",
                         help="Verbose mode: include this flag additional print statements for debugging purposes."
                         )
+    parser.add_argument("-t", "--training",
+                        default=True,
+                        type=lambda x: (str(x).lower() == 'False'),
+                        help="Training mode: train model from scratch and make predictions otherwise load pre-trained model for predictions"
+                        )
     args = parser.parse_args()
     config.dataset = args.dataset
     config.model = args.model
     config.verbose_mode = args.verbose
-
+    config.training = args.training
+    
 
 if __name__ == '__main__':
     main()
