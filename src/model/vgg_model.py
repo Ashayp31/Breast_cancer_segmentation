@@ -57,11 +57,8 @@ def generate_vgg_model(classes_len: int):
     else:
         model.add(Dense(classes_len, activation='softmax', name='Output'))
 
-    print(model.layers[0].summary())
-    print(model.summary())
-    exit()
     # Print model details if running in debug mode.
     if config.verbose_mode:
-        model.summary()
+        print(model.summary())
 
     return model

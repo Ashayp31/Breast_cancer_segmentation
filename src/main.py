@@ -56,7 +56,11 @@ def main() -> None:
 
             # Create and train CNN model.
 
-            model = generate_vgg_model(l_e.classes_.size)
+            if config.imagesize == "small":
+                model = generate_vgg_model(l_e.classes_.size)
+            else:
+                model = generate_vgg_model_large(l_e.classes_.size)
+
             model = train_network(model, dataset_train, None, dataset_val, None, config.BATCH_SIZE, config.EPOCH_1,
                                   config.EPOCH_2)
 
@@ -64,10 +68,10 @@ def main() -> None:
             print_error_message()
 
         # Save the model
-        model.save("../saved_models/{}-model_{}-dataset.h5".format(config.model, config.dataset))
+        model.save("../saved_models/dataset-{}_model-{}_imagesize-{}.h5".format(config.dataset, config.model, config.imagesize))
 
     elif config.run_mode == "test":
-        model = load_model("../saved_models/{}-model_{}-dataset.h5".format(config.model, config.dataset))
+        model = load_model("../saved_models/dataset-{}_model-{}_imagesize-{}.h5".format(config.dataset, config.model, config.imagesize))
 
     # Evaluate model results.
     if config.dataset == "mini-MIAS":
@@ -101,8 +105,7 @@ def parse_command_line_arguments() -> None:
                         help="The model to use. Must be either 'basic' or 'advanced'."
                         )
     parser.add_argument("-r", "--runmode",
-                        default="training",
-                        required=True,
+                        default="train",
                         help="Running mode: train model from scratch and make predictions, otherwise load pre-trained "
                              "model for predictions. Must be either 'train' or 'test'."
                         )
@@ -122,6 +125,6 @@ def parse_command_line_arguments() -> None:
     config.imagesize = args.imagesize
     config.verbose_mode = args.verbose
     
- 
+
 if __name__ == '__main__':
     main()

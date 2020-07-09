@@ -110,7 +110,5 @@ def generate_vgg_model_large(classes_len: int):
     if config.verbose_mode:
         model.summary()
         
-    print(model.summary())
-    exit()
 
     return model

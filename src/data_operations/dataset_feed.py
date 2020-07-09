@@ -13,7 +13,7 @@ def create_dataset(x, y):
     """
     dataset = tf.data.Dataset.from_tensor_slices((x, y))
     # map values from dicom image path to array
-    if config.image == "small":
+    if config.imagesize == "small":
         dataset = dataset.map(parse_function_small, num_parallel_calls=tf.data.experimental.AUTOTUNE)
     else:
         dataset = dataset.map(parse_function_large, num_parallel_calls=tf.data.experimental.AUTOTUNE)
