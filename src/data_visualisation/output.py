@@ -216,7 +216,7 @@ def evaluate(y_true: list, y_pred: list, label_encoder: LabelEncoder, dataset: s
         plot_roc_curve_multiclass(y_true, y_pred, label_encoder)
 
     # Compare our results with other papers' result.
-    with open('other/other_results.json') as config_file:  # load other papers' result from json file
+    with open('data_visualisation/other_paper_results.json') as config_file:  # load other papers' result from json file
         data = json.load(config_file)
     df = pd.DataFrame.from_records(data[dataset][classification_type],
                                    columns=['paper', 'accuracy'])  # Filter data by dataset and classification type.
