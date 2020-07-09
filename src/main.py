@@ -1,8 +1,6 @@
 import argparse
 import time
 
-from sklearn.preprocessing import LabelEncoder
-
 import config
 from data_operations.dataset_feed import create_dataset
 from data_operations.data_preprocessing import import_cbisddsm_training_dataset, import_minimias_dataset, \
@@ -10,7 +8,7 @@ from data_operations.data_preprocessing import import_cbisddsm_training_dataset,
 from model.output import evaluate
 from model.train_test_model import make_predictions, train_network
 from model.vgg_model import generate_vgg_model
-from utils import print_error_message, print_num_gpus_available, print_runtime
+from utils import create_label_encoder, print_error_message, print_num_gpus_available, print_runtime
 from tensorflow.keras.models import load_model
 
 
@@ -26,7 +24,7 @@ def main() -> None:
     start_time = time.time()
 
     # Create label encoder.
-    l_e = LabelEncoder()
+    l_e = create_label_encoder()
 
     # Run in training mode.
     if config.run_mode == "train":

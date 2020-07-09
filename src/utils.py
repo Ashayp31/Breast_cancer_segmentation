@@ -1,3 +1,4 @@
+from sklearn.preprocessing import LabelEncoder
 import tensorflow as tf
 
 
@@ -36,3 +37,11 @@ def print_error_message() -> None:
     print("Wrong command line arguments passed, please use 'python main.py --help' for instructions on which arguments"
           "to pass to the program.")
     exit(1)
+
+
+def create_label_encoder():
+    """
+    Creates the label encoder.
+    :return: The instantiated label encoder.
+    """
+    return LabelEncoder()
