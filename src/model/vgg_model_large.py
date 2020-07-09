@@ -4,6 +4,7 @@ from tensorflow.keras.applications import VGG19
 from tensorflow.keras.layers import Concatenate, Dense, Dropout, Flatten, Input
 from tensorflow.python.keras import Sequential
 from tensorflow.python.keras.layers import Conv2D, MaxPooling2D
+from tensorflow.python.keras.models import Model
 
 import config
 
@@ -11,25 +12,72 @@ import config
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
-def generate_vgg_model(classes_len: int):
+def generate_vgg_model_large(classes_len: int):
     """
-    Function to create a VGG19 model pre-trained with custom FC Layers.
+    Function to create a VGG19 model pre-trained with custom FC Layers at the start of the network plus optional layers at
+    the end before the fully connected ones as well
     If the "advanced" command line argument is selected, adds an extra convolutional layer with extra filters to support
     larger images.
     :param classes_len: The number of classes (labels).
     :return: The VGG19 model.
     """
+    
+    
+    model_base = Sequential()
+
     # Reconfigure single channel input into a greyscale 3 channel input
-    img_input = Input(shape=(config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE['WIDTH'], 1))
+    img_input = Input(shape=(config.VGG_IMG_SIZE_LARGE['HEIGHT'], config.VGG_IMG_SIZE_LARGE['WIDTH'], 1))
     img_conc = Concatenate()([img_input, img_input, img_input])
+    input_model = Model(inputs=img_input, outputs=img_conc)
+
+    # Generate extra convolutional layers for model to put at the beginning
+    model_base.add(input_model)
+    model_base.add(Conv2D(16, (3, 3),
+                      activation='relu',
+                      padding='same'))
+    
+    model_base.add(Conv2D(16, (3, 3),
+                      activation='relu',
+                      padding='same'))
+    
+    model_base.add(MaxPooling2D((2, 2), strides=(2, 2)))
+    
+    model_base.add(Conv2D(32, (3, 3),
+                      activation='relu',
+                      padding='same'))
+    
+    model_base.add(Conv2D(32, (3, 3),
+                      activation='relu',
+                      padding='same'))
+    
+    model_base.add(MaxPooling2D((2, 2), strides=(2, 2)))
+    
+    # To ensure model fits with vgg model, we can remove the first layer from the vgg model to replace with this
+    model_base.add(Conv2D(64, (3, 3),
+                      activation='relu',
+                      padding='same'))
 
     # Generate a VGG19 model with pre-trained ImageNet weights, input as given above, excluded fully connected layers.
-    model_base = VGG19(include_top=False, weights='imagenet', input_tensor=img_conc)
+    vgg_model = VGG19(include_top=False, weights='imagenet', input_shape=[config.VGG_IMG_SIZE['HEIGHT'],
+                                                                           config.VGG_IMG_SIZE['HEIGHT'],
+                                                                           3])
+    
 
+    # Crop vgg model to exlude input layer and first convolutional layer
+    vgg_model_cropped = Sequential()
+    for layer in vgg_model.layers[2:]: # go through until last layer
+        vgg_model_cropped.add(layer)
+
+    # Combine the models
+    combined_model = Sequential()
+    combined_model.add(model_base)
+    combined_model.add(vgg_model_cropped)
+
+    
     # Add fully connected layers
     model = Sequential()
     # Start with base model consisting of convolutional layers
-    model.add(model_base)
+    model.add(combined_model)
 
     # Generate additional convolutional layers
     if config.model == "advanced":
@@ -57,11 +105,12 @@ def generate_vgg_model(classes_len: int):
     else:
         model.add(Dense(classes_len, activation='softmax', name='Output'))
 
-    print(model.layers[0].summary())
-    print(model.summary())
-    exit()
+
     # Print model details if running in debug mode.
     if config.verbose_mode:
         model.summary()
+        
+    print(model.summary())
+    exit()
 
     return model

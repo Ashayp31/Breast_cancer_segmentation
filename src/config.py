@@ -8,6 +8,10 @@ VGG_IMG_SIZE = {
     "HEIGHT": 512,
     "WIDTH": 512
 }
+VGG_IMG_SIZE_LARGE = {
+    "HEIGHT": 2048,
+    "WIDTH": 2048
+}
 BATCH_SIZE = 8
 EPOCH_1 = 100
 EPOCH_2 = 50
@@ -17,3 +21,4 @@ dataset = "mini-MIAS"   # The dataset to use.
 model = "basic"         # The model to use.
 verbose_mode = False    # Boolean used to print additional logs for debugging purposes.
 training = True         # Boolean used to train model from scratch and make predictions otherwise load pre-trained model for predictions
+image = "small"

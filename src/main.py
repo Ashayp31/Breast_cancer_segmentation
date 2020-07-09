@@ -9,6 +9,7 @@ from data_operations.data_preprocessing import encode_labels, import_dataset, da
 from model.output import evaluate
 from model.train_test_model import make_predictions, train_network
 from model.vgg_model import generate_vgg_model
+from model.vgg_model_large import generate_vgg_model_large
 from utils import print_runtime
 import tensorflow as tf
 from skimage.transform import resize
@@ -64,7 +65,7 @@ def main() -> None:
 
         if config.training == True:
             # Create and train CNN model.
-            model = generate_vgg_model(l_e.classes_.size)
+            model = generate_vgg_model_large(l_e.classes_.size)
             model = train_network(model, dataset_train, None, dataset_val, None, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
         
 
@@ -109,6 +110,10 @@ def parse_command_line_arguments() -> None:
                         default=True,
                         type=lambda x: (str(x).lower() == 'False'),
                         help="Training mode: train model from scratch and make predictions otherwise load pre-trained model for predictions"
+                        )
+    parser.add_argument("-i", "--image",
+                        default="small",
+                        help="small: use resized images to 512x512, otherwise use 'large' to use 2024x2024 size image with model with extra convolutions for downsizing."
                         )
     args = parser.parse_args()
     config.dataset = args.dataset
