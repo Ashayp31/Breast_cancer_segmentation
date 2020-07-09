@@ -1,3 +1,6 @@
+import tensorflow as tf
+
+
 def print_runtime(text: str, runtime: float) -> None:
     """
     Print runtime in seconds.
@@ -15,3 +18,21 @@ def show_raw_image(img) -> None:
     :return: None.
     """
     img.show()
+
+
+def print_num_gpus_available() -> None:
+    """
+    Prints the number of GPUs available on the current machine.
+    :return: None
+    """
+    print("Number of GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
+
+
+def print_error_message() -> None:
+    """
+    Print error message and exit code when a CLI-related error occurs.
+    :return:
+    """
+    print("Wrong command line arguments passed, please use 'python main.py --help' for instructions on which arguments"
+          "to pass to the program.")
+    exit(1)
