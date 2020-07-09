@@ -4,7 +4,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.python.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 
 import config
-from model.output import plot_training_results
+from data_visualisation.output import plot_training_results
 
 
 def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epochs2):

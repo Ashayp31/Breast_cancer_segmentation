@@ -5,7 +5,7 @@ import config
 from data_operations.dataset_feed import create_dataset
 from data_operations.data_preprocessing import import_cbisddsm_training_dataset, import_minimias_dataset, \
     dataset_stratified_split, generate_image_transforms
-from model.output import evaluate
+from data_visualisation.output import evaluate
 from model.train_test_model import make_predictions, train_network
 from model.vgg_model import generate_vgg_model
 from utils import create_label_encoder, print_error_message, print_num_gpus_available, print_runtime
