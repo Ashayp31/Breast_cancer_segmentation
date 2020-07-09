@@ -13,7 +13,7 @@ VGG_IMG_SIZE_LARGE = {
     "WIDTH": 2048
 }
 BATCH_SIZE = 2
-EPOCH_1 = 100
+EPOCH_1 = 150
 EPOCH_2 = 50
 
 # Variables set by command line arguments/flags
