@@ -1,87 +1,85 @@
 import argparse
 import time
 
-import pandas as pd
-from sklearn.preprocessing import LabelEncoder
-
 import config
-from data_operations.data_preprocessing import encode_labels, import_dataset, dataset_stratified_split, generate_image_transforms
-from model.output import evaluate
+from data_operations.dataset_feed import create_dataset
+from data_operations.data_preprocessing import import_cbisddsm_training_dataset, import_minimias_dataset, \
+    dataset_stratified_split, generate_image_transforms
+from data_visualisation.output import evaluate
 from model.train_test_model import make_predictions, train_network
 from model.vgg_model import generate_vgg_model
 from model.vgg_model_large import generate_vgg_model_large
-from utils import print_runtime
-import tensorflow as tf
-from skimage.transform import resize
-import pydicom
-import matplotlib.pyplot as plt
-import tensorflow_io as tfio
-import numpy as np
-from data_operations.dataset_feed import create_dataset
+from utils import create_label_encoder, print_error_message, print_num_gpus_available, print_runtime
 from tensorflow.keras.models import load_model
-
 
 def main() -> None:
     """
     Program entry point. Parses command line arguments to decide which dataset and model to use.
     :return: None.
     """
-    print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
-
     parse_command_line_arguments()
+    print_num_gpus_available()
 
     # Start recording time.
     start_time = time.time()
 
     # Create label encoder.
-    l_e = LabelEncoder()
+    l_e = create_label_encoder()
 
-    if config.dataset == "mini-MIAS":
-        # Import entire dataset.
-        images, labels = import_dataset(data_dir="../data/{}/images_processed".format(config.dataset),
-                                        label_encoder=l_e)
+    # Run in training mode.
+    if config.run_mode == "train":
 
-        # Split dataset into training/test/validation sets (60%/20%/20% split).
-        X_train, X_test, y_train, y_test = dataset_stratified_split(split=0.20, dataset=images, labels=labels)
-        X_train_rebalanced, y_train_rebalanced = generate_image_transforms(X_train, y_train)
-        X_train, X_val, y_train, y_val = dataset_stratified_split(split=0.25, dataset=X_train_rebalanced,
-                                                                  labels=y_train_rebalanced)
-        if config.training == True:
+        # Multiclass classification (mini-MIAS dataset)
+        if config.dataset == "mini-MIAS":
+            # Import entire dataset.
+            images, labels = import_minimias_dataset(data_dir="../data/{}/images_processed".format(config.dataset),
+                                                     label_encoder=l_e)
+
+            # Split dataset into training/test/validation sets (60%/20%/20% split).
+            X_train, X_test, y_train, y_test = dataset_stratified_split(split=0.20, dataset=images, labels=labels)
+            X_train_rebalanced, y_train_rebalanced = generate_image_transforms(X_train, y_train)
+            X_train, X_val, y_train, y_val = dataset_stratified_split(split=0.25, dataset=X_train_rebalanced,
+                                                                      labels=y_train_rebalanced)
             # Create and train CNN model.
             model = generate_vgg_model(l_e.classes_.size)
-            model = train_network(model, X_train, y_train, X_val, y_val, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
+            model = train_network(model, X_train, y_train, X_val, y_val, config.BATCH_SIZE, config.EPOCH_1,
+                                  config.EPOCH_2)
 
-    elif config.dataset == "CBIS-DDSM":
-        df = pd.read_csv("../data/CBIS-DDSM/training.csv")
-        list_IDs = df['img_path'].values
-        labels = df['label'].values
-       
-        labels = encode_labels(labels, l_e)
-        
-        X_train, X_val, y_train, y_val = dataset_stratified_split(split=0.25, dataset=list_IDs, labels=labels)
+        # Binary classification (CBIS-DDSM dataset).
+        elif config.dataset == "CBIS-DDSM":
+            images, labels = import_cbisddsm_training_dataset(l_e)
 
-        dataset_train = create_dataset(X_train, y_train) 
-        dataset_val = create_dataset(X_val, y_val)
+            # Split training dataset into training/validation sets (75%/25% split).
+            X_train, X_val, y_train, y_val = dataset_stratified_split(split=0.25, dataset=images, labels=labels)
+            dataset_train = create_dataset(X_train, y_train)
+            dataset_val = create_dataset(X_val, y_val)
 
-        if config.training == True:
             # Create and train CNN model.
-            model = generate_vgg_model_large(l_e.classes_.size)
-            model = train_network(model, dataset_train, None, dataset_val, None, config.BATCH_SIZE, config.EPOCH_1, config.EPOCH_2)
-        
 
-    if config.training == True:    
+            model = generate_vgg_model(l_e.classes_.size)
+            model = train_network(model, dataset_train, None, dataset_val, None, config.BATCH_SIZE, config.EPOCH_1,
+                                  config.EPOCH_2)
+
+        else:
+            print_error_message()
+
+        # Save the model
         model.save("../saved_models/{}-model_{}-dataset.h5".format(config.model, config.dataset))
-    else:
+
+    elif config.run_mode == "test":
         model = load_model("../saved_models/{}-model_{}-dataset.h5".format(config.model, config.dataset))
 
-    # Evaluate model.
+    # Evaluate model results.
     if config.dataset == "mini-MIAS":
         y_pred = make_predictions(model, X_val)
         evaluate(y_val, y_pred, l_e, config.dataset, 'N-B-M')
     elif config.dataset == "CBIS-DDSM":
         y_pred = make_predictions(model, dataset_val)
         evaluate(y_val, y_pred, l_e, config.dataset, 'B-M')
-        
+
+    # Print the prediction
+#     print(y_pred)
+
     # Print training runtime.
     print_runtime("Total", round(time.time() - start_time, 2))
 
@@ -102,25 +100,28 @@ def parse_command_line_arguments() -> None:
                         required=True,
                         help="The model to use. Must be either 'basic' or 'advanced'."
                         )
+    parser.add_argument("-r", "--runmode",
+                        default="training",
+                        required=True,
+                        help="Running mode: train model from scratch and make predictions, otherwise load pre-trained "
+                             "model for predictions. Must be either 'train' or 'test'."
+                        )
+    parser.add_argument("-i", "--imagesize",
+                        default="small",
+                        help="small: use resized images to 512x512, otherwise use 'large' to use 2048x2048 size image with model with extra convolutions for downsizing."
+                        )
     parser.add_argument("-v", "--verbose",
                         action="store_true",
                         help="Verbose mode: include this flag additional print statements for debugging purposes."
                         )
-    parser.add_argument("-t", "--training",
-                        default=True,
-                        type=lambda x: (str(x).lower() == 'False'),
-                        help="Training mode: train model from scratch and make predictions otherwise load pre-trained model for predictions"
-                        )
-    parser.add_argument("-i", "--image",
-                        default="small",
-                        help="small: use resized images to 512x512, otherwise use 'large' to use 2024x2024 size image with model with extra convolutions for downsizing."
-                        )
+
     args = parser.parse_args()
     config.dataset = args.dataset
     config.model = args.model
+    config.run_mode = args.runmode
+    config.imagesize = args.imagesize
     config.verbose_mode = args.verbose
-    config.training = args.training
     
-
+ 
 if __name__ == '__main__':
     main()

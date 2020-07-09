@@ -1,8 +1,9 @@
 import os
+import random
 
 from imutils import paths
 import numpy as np
-import random
+import pandas as pd
 import skimage as sk
 import skimage.transform
 from sklearn.model_selection import train_test_split
@@ -12,9 +13,11 @@ from tensorflow.keras.utils import to_categorical
 import config
 
 
-def import_dataset(data_dir: str, label_encoder) -> (np.ndarray, np.ndarray):
+def import_minimias_dataset(data_dir: str, label_encoder) -> (np.ndarray, np.ndarray):
     """
     Import the dataset by pre-processing the images and encoding the labels.
+    :param data_dir: Directory to the mini-MIAS images.
+    :param label_encoder: The label encoder.
     :return: Two NumPy arrays, one for the processed images and one for the encoded labels.
     """
     # Initialise variables.
@@ -34,6 +37,18 @@ def import_dataset(data_dir: str, label_encoder) -> (np.ndarray, np.ndarray):
     labels = encode_labels(labels, label_encoder)
 
     return images, labels
+
+
+def import_cbisddsm_training_dataset(label_encoder):
+    """
+    Import the dataset getting the image paths (downloaded on BigTMP) and encoding the labels.
+    :param label_encoder: The label encoder.
+    :return: Two arrays, one for the image paths and one for the encoded labels.
+    """
+    df = pd.read_csv("../data/CBIS-DDSM/training.csv")
+    list_IDs = df['img_path'].values
+    labels = encode_labels(df['label'].values, label_encoder)
+    return list_IDs, labels
 
 
 def preprocess_image(image_path: str) -> np.ndarray:

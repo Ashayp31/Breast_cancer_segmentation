@@ -19,6 +19,6 @@ EPOCH_2 = 50
 # Variables set by command line arguments/flags
 dataset = "mini-MIAS"   # The dataset to use.
 model = "basic"         # The model to use.
+run_mode = "training"   # The type of running mode, either training or testing.
 verbose_mode = False    # Boolean used to print additional logs for debugging purposes.
-training = True         # Boolean used to train model from scratch and make predictions otherwise load pre-trained model for predictions
-image = "small"
+imagesize = "small"

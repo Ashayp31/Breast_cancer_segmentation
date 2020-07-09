@@ -1,12 +1,17 @@
-import tensorflow_io as tfio
-import pydicom
 import tensorflow as tf
+import tensorflow_io as tfio
+
 import config
 
 
-
 def create_dataset(x, y):
-    dataset = tf.data.Dataset.from_tensor_slices((x, y)) 
+    """
+
+    :param x:
+    :param y:
+    :return:
+    """
+    dataset = tf.data.Dataset.from_tensor_slices((x, y))
     # map values from dicom image path to array
     if config.image == "small":
         dataset = dataset.map(parse_function_small, num_parallel_calls=tf.data.experimental.AUTOTUNE)
@@ -15,13 +20,19 @@ def create_dataset(x, y):
     dataset = dataset.cache().repeat(1)
     dataset = dataset.batch(config.BATCH_SIZE)
     dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
-    
+
     return dataset
 
 
 def parse_function_small(filename, label):
+    """
+
+    :param filename:
+    :param label:
+    :return:
+    """
     image_bytes = tf.io.read_file(filename)
-    image = tfio.image.decode_dicom_image(image_bytes,color_dim = True, scale="auto",  dtype=tf.uint16)
+    image = tfio.image.decode_dicom_image(image_bytes, color_dim=True, scale="auto", dtype=tf.uint16)
     as_png = tf.image.encode_png(image[0])
     decoded_png = tf.io.decode_png(as_png, channels=1)
     image = tf.image.resize(decoded_png, [config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE['HEIGHT']])
