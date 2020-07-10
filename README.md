@@ -26,7 +26,6 @@ source /Breast-Cancer-Detection-Code/tf2/venv/bin/activate
 `cd` into the `src` directory and run the code:
 
 ```
-python3 main.py -d [dataset] -m [model] -v
 python main.py [-h] -d DATASET -m MODEL [-r RUNMODE] [-i IMAGESIZE] [-v]
 ```
 
