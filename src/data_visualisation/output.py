@@ -186,7 +186,6 @@ def evaluate(y_true: list, y_pred: list, label_encoder: LabelEncoder, dataset: s
     # Inverse transform y_true and y_pred from one-hot-encoding to original label.
     if label_encoder.classes_.size == 2:
         y_true_inv = y_true
-#         y_pred_inv = np.argmax(y_pred, axis=1)
         y_pred_inv = np.round_(y_pred, 0)
     else:
         y_true_inv = label_encoder.inverse_transform(np.argmax(y_true, axis=1))

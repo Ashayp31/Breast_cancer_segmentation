@@ -18,6 +18,7 @@ def generate_vgg_model_large(classes_len: int):
     the end before the fully connected ones as well
     If the "advanced" command line argument is selected, adds an extra convolutional layer with extra filters to support
     larger images.
+    This model is a larger model that starts with two more sets of convolutional layers with less filters 
     :param classes_len: The number of classes (labels).
     :return: The VGG19 model.
     """
