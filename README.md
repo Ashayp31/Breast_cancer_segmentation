@@ -20,7 +20,14 @@ sh build.sh
 Activate the virtual environment:
 
 ```
-source /Breast-Cancer-Detection-Code/tf2/venv/bin/activate
+source /cs/scratch/<username>/tf2/venv/bin/activate
+```
+
+Create `output`and `save_models` directories to store the results:
+
+```
+mkdir output
+mkdir saved_models
 ```
 
 `cd` into the `src` directory and run the code:
@@ -78,7 +85,7 @@ mkdir normal_cases
 * Now run the python script for processing the dataset and render it usable with Tensorflow and Keras:
 
 ```
-python3 ../../../src/data_manipulations/mini-MIAS-initial-pre-processing.py
+python3 ../../../src/dataset_processing_scripts/mini-MIAS-initial-pre-processing.py
 ```
 
 ### DDSM and CBIS-DDSM datasets
