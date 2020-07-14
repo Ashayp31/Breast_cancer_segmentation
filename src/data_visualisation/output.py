@@ -6,6 +6,12 @@ import pandas as pd
 import seaborn as sns
 from sklearn.metrics import accuracy_score, auc, classification_report, confusion_matrix, roc_curve
 from sklearn.preprocessing import LabelEncoder
+import pydicom
+import random
+from sklearn.metrics import jaccard_score
+from tensorflow.keras import backend as K
+import tensorflow as tf
+import tensorflow_io as tfio
 
 import config
 
@@ -252,3 +258,149 @@ def plot_training_results(hist_input, plot_name: str, is_frozen_layers) -> None:
     plt.legend(loc="lower left")
     plt.savefig("../output/dataset-{}_model-{}_imagesize-{}_{}.png".format(config.dataset, config.model, config.imagesize, plot_name))
     plt.show()
+
+    
+def plot_training_results_segmentation(hist_input, plot_name: str, is_frozen_layers) -> None:
+    """
+    Function to plot loss and accuracy over epoch count for training
+    :param is_frozen_layers: Boolean controlling whether some layers are frozen (for the plot title).
+    :param hist_input: The training history.
+    :param plot_name: The plot name.
+    """
+    title = "Training Loss and Accuracy on Dataset"
+    if not is_frozen_layers:
+        title += " (all layers unfrozen)"
+
+    n = len(hist_input.history["loss"])
+    plt.style.use("ggplot")
+    plt.figure()
+    plt.plot(np.arange(0, n), hist_input.history["loss"], label="train_loss")
+    plt.plot(np.arange(0, n), hist_input.history["val_loss"], label="val_loss")
+    plt.plot(np.arange(0, n), hist_input.history["binary_accuracy"], label="training_accuracy")
+    plt.plot(np.arange(0, n), hist_input.history["val_binary_accuracy"], label="val_accuracy")
+    plt.title(title)
+    plt.xlabel("Epoch #")
+    plt.ylabel("Loss/IOU")
+    plt.legend(loc="lower left")
+    plt.savefig("../output/{}_CBIS_{}_imagesize-{}x{}.png".format(plot_name, config.segmodel, str(config.VGG_IMG_SIZE['HEIGHT']),str(config.VGG_IMG_SIZE['WIDTH'])))
+    plt.show()
+
+def evaluate_segmentation(y_true, y_pred):
+    y_true_arr = convert_paths_to_arrays(y_true)
+    print(y_pred)
+    print(y_true_arr)
+    print(np.amax(y_pred))
+    print(np.amax(y_true_arr))
+    y_true_arr = np.resize(y_true_arr, (len(y_true_arr),config.VGG_IMG_SIZE['HEIGHT']*config.VGG_IMG_SIZE['WIDTH'], 1))
+
+    mask_true_argmax = np.where(y_true_arr > 0.5, 1, 0)
+    mask_pred_argmax = np.where(y_pred > 0.5, 1, 0)
+    mask_true_argmax_flattened = mask_true_argmax.flatten()
+    mask_pred_argmax_flattened = mask_pred_argmax.flatten()
+
+    # Jaccard similarity index
+    jaccard_index = jaccard_score(mask_true_argmax_flattened, mask_pred_argmax_flattened)
+    print("Jaccard similarity score: " + str(jaccard_index))
+
+    meanIOU = compute_iou(mask_true_argmax_flattened, mask_pred_argmax_flattened)
+    print("Mean IOU  score: " + str(meanIOU))
+
+    diceScore = mean_dice_coef(mask_pred_argmax, mask_true_argmax)
+    print("Dice Similarity  score: " + str(diceScore))
+
+    # Confusion matrix
+    threshold_confusion = 0.5
+    print("Confusion matrix:  Custom threshold (for positive) of " + str(threshold_confusion))
+
+    confusion = confusion_matrix(mask_true_argmax_flattened, mask_pred_argmax_flattened)
+    print(confusion)
+    accuracy = 0
+    if float(np.sum(confusion)) != 0:
+        accuracy = float(confusion[0, 0] + confusion[1, 1]) / float(np.sum(confusion))
+    print("Global Accuracy: " + str(accuracy))
+    specificity = 0
+    if float(confusion[0, 0] + confusion[0, 1]) != 0:
+        specificity = float(confusion[0, 0]) / float(confusion[0, 0] + confusion[0, 1])
+    print("Specificity: " + str(specificity))
+    sensitivity = 0
+    if float(confusion[1, 1] + confusion[1, 0]) != 0:
+        sensitivity = float(confusion[1, 1]) / float(confusion[1, 1] + confusion[1, 0])
+    print("Sensitivity: " + str(sensitivity))
+    precision = 0
+    if float(confusion[1, 1] + confusion[0, 1]) != 0:
+        precision = float(confusion[1, 1]) / float(confusion[1, 1] + confusion[0, 1])
+    print("Precision: " + str(precision))
+
+
+def visualise_examples(original, mask_true, mask_pred ):
+#     random_images = [21, 141, 328]
+    random_images = [1, 3, 5]
+    
+    original_images = original[random_images]
+    mask_true_images = mask_true[random_images]
+    mask_pred_images = mask_pred[random_images]
+
+    original_images_arr = convert_paths_to_arrays(original_images, if_reshape=False)
+    mask_true_arr = convert_paths_to_arrays(mask_true_images, if_reshape=False)
+    mask_pred_arr = mask_pred_images
+
+    mask_true_arr = np.where(mask_true_arr>0.5, 1, 0)
+    mask_pred_arr = np.where(mask_pred_arr>0.5, 1, 0)
+    
+    # Sample results
+    fig,ax = plt.subplots(3, 3, figsize=[15,15])
+    plt.rcParams["axes.grid"] = False
+    for idx in range(3):
+        mask_pred_arr_idx = np.reshape(mask_pred_arr[idx], (config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE['WIDTH']))
+        ax[idx, 0].imshow(original_images_arr[idx], cmap='gray')
+        ax[idx, 1].imshow(mask_true_arr[idx], cmap='gray')
+        ax[idx, 2].imshow(mask_pred_arr_idx, cmap='gray')
+    plt.savefig('../output/segmentation_examples_{}_image_size_{}x{}.png'.format(config.segmodel, str(config.VGG_IMG_SIZE['HEIGHT']), str(config.VGG_IMG_SIZE['WIDTH'])))
+
+
+def compute_iou(y_pred, y_true):
+     # ytrue, ypred is a flatten vector
+     y_pred = y_pred.flatten()
+     y_true = y_true.flatten()
+     current = confusion_matrix(y_true, y_pred, labels=[0, 1])
+     # compute mean iou
+     intersection = np.diag(current)
+     ground_truth_set = current.sum(axis=1)
+     predicted_set = current.sum(axis=0)
+     union = ground_truth_set + predicted_set - intersection
+     IoU = intersection / union.astype(np.float32)
+     return np.mean(IoU)
+
+
+def single_dice_coef(true, pred):
+    # shape of y_true and y_pred_bin: (height, width)
+    intersection = np.sum(true * pred)
+    if (np.sum(true) == 0) and (np.sum(pred) == 0):
+        return 1
+    return (2 * intersection) / (np.sum(true) + np.sum(pred))
+
+
+def mean_dice_coef(y_pred, y_true):
+    # shape of y_true and y_pred_bin: (n_samples, height, width, n_channels)
+    batch_size = y_true.shape[0]
+    mean_dice_channel = 0.
+    for i in range(batch_size):
+        channel_dice = single_dice_coef(y_true[i, :, 0], y_pred[i, :, 0])
+        mean_dice_channel += channel_dice / batch_size
+    return mean_dice_channel
+
+
+def convert_paths_to_arrays(y, if_reshape=True):
+    y_arr = []
+    for image in y:
+        image_bytes_mask = tf.io.read_file(image)
+        image_mask = tfio.image.decode_dicom_image(image_bytes_mask,color_dim = True,  dtype=tf.uint16)
+        image_mask = tf.image.resize_with_pad(image_mask[0], config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE['WIDTH'])
+        current_min = tf.reduce_min(image_mask)
+        current_max = tf.reduce_max(image_mask)
+        image_mask = (image_mask - current_min) / (current_max - current_min)
+        if if_reshape:
+            image_mask = tf.reshape(image_mask, [-1, 1])
+        image_as_array = np.squeeze(image_mask.numpy())
+        y_arr.append(image_as_array)
+    return np.array(y_arr)

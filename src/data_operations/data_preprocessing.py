@@ -51,6 +51,19 @@ def import_cbisddsm_training_dataset(label_encoder):
     return list_IDs, labels
 
 
+def import_cbisddsm_segmentation_training_dataset():
+    """
+    Import the dataset getting the image paths (downloaded on BigTMP) for images and masks.
+    :param label_encoder: The label encoder.
+    :return: Two arrays, one for the image paths and one for the encoded labels.
+    """
+#     df = pd.read_csv("../data/CBIS-DDSM-mask/shortened_mask_training_short.csv")
+    df = pd.read_csv("../data/CBIS-DDSM-mask/shortened_mask_training.csv")
+    list_IDs = df['img_path'].values
+    ground_truth_ids = df['mask_img_path'].values
+    return list_IDs, ground_truth_ids
+
+
 def preprocess_image(image_path: str) -> np.ndarray:
     """
     Pre-processing steps:
