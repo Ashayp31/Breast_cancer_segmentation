@@ -34,7 +34,7 @@ def train_segmentation_network(model, train_x, val_x, epochs1, epochs2):
 #     model.compile(optimizer=Adam(lr=1e-4),
 #                       loss=BinaryCrossentropy(),
 #                       metrics=[BinaryAccuracy()])
-    model.compile(optimizer=Adam(lr=1e-3),
+    model.compile(optimizer=Adam(lr=0.001),
                       loss=dice_coef_loss,
                       metrics=[BinaryAccuracy()])
 
@@ -90,7 +90,6 @@ def dice_coef(y_true, y_pred, smooth=1):
     """
     Dice = (2*|X & Y|)/ (|X|+ |Y|)
          =  2*sum(|A*B|)/(sum(A^2)+sum(B^2))
-    ref: https://arxiv.org/pdf/1606.04797v1.pdf
     """
 
     y_true = y_true[0, :, 0]

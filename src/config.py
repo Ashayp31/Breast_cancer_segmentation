@@ -22,4 +22,5 @@ model = "basic"         # The model to use.
 run_mode = "training"   # The type of running mode, either training or testing.
 verbose_mode = False    # Boolean used to print additional logs for debugging purposes.
 imagesize = "small"
-segmodel = "RN50"
+segmodel = "RS50"
+prep = "N"

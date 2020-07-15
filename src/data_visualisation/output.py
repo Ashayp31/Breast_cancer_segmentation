@@ -12,6 +12,8 @@ from sklearn.metrics import jaccard_score
 from tensorflow.keras import backend as K
 import tensorflow as tf
 import tensorflow_io as tfio
+from data_operations.dataset_feed import gaussian_blur, tf_equalize_histogram
+
 
 import config
 
@@ -282,13 +284,13 @@ def plot_training_results_segmentation(hist_input, plot_name: str, is_frozen_lay
     plt.xlabel("Epoch #")
     plt.ylabel("Loss/IOU")
     plt.legend(loc="lower left")
-    plt.savefig("../output/{}_CBIS_{}_imagesize-{}x{}.png".format(plot_name, config.segmodel, str(config.VGG_IMG_SIZE['HEIGHT']),str(config.VGG_IMG_SIZE['WIDTH'])))
+    plt.savefig("../output/{}_CBIS_{}_imagesize-{}x{}_filtered_{}.png".format(plot_name, config.segmodel, str(config.VGG_IMG_SIZE['HEIGHT']),str(config.VGG_IMG_SIZE['WIDTH']), config.prep))
     plt.show()
 
 def evaluate_segmentation(y_true, y_pred):
     y_true_arr = convert_paths_to_arrays(y_true)
-    print(y_pred)
-    print(y_true_arr)
+    print(y_pred.shape)
+    print(y_true_arr.shape)
     print(np.amax(y_pred))
     print(np.amax(y_true_arr))
     y_true_arr = np.resize(y_true_arr, (len(y_true_arr),config.VGG_IMG_SIZE['HEIGHT']*config.VGG_IMG_SIZE['WIDTH'], 1))
@@ -333,16 +335,17 @@ def evaluate_segmentation(y_true, y_pred):
 
 
 def visualise_examples(original, mask_true, mask_pred ):
-#     random_images = [21, 141, 328]
-    random_images = [1, 3, 5]
+    random_images = [28, 141, 328]
+#     random_images = [1, 3, 5]
     
     original_images = original[random_images]
     mask_true_images = mask_true[random_images]
     mask_pred_images = mask_pred[random_images]
 
     original_images_arr = convert_paths_to_arrays(original_images, if_reshape=False)
-    mask_true_arr = convert_paths_to_arrays(mask_true_images, if_reshape=False)
+    mask_true_arr = convert_paths_to_arrays(mask_true_images, if_reshape=False, is_mask=True)
     mask_pred_arr = mask_pred_images
+
 
     mask_true_arr = np.where(mask_true_arr>0.5, 1, 0)
     mask_pred_arr = np.where(mask_pred_arr>0.5, 1, 0)
@@ -355,7 +358,7 @@ def visualise_examples(original, mask_true, mask_pred ):
         ax[idx, 0].imshow(original_images_arr[idx], cmap='gray')
         ax[idx, 1].imshow(mask_true_arr[idx], cmap='gray')
         ax[idx, 2].imshow(mask_pred_arr_idx, cmap='gray')
-    plt.savefig('../output/segmentation_examples_{}_image_size_{}x{}.png'.format(config.segmodel, str(config.VGG_IMG_SIZE['HEIGHT']), str(config.VGG_IMG_SIZE['WIDTH'])))
+    plt.savefig('../output/segmentation_examples_{}_image_size_{}x{}_filtered_{}.png'.format(config.segmodel, str(config.VGG_IMG_SIZE['HEIGHT']), str(config.VGG_IMG_SIZE['WIDTH']), config.prep))
 
 
 def compute_iou(y_pred, y_true):
@@ -390,17 +393,26 @@ def mean_dice_coef(y_pred, y_true):
     return mean_dice_channel
 
 
-def convert_paths_to_arrays(y, if_reshape=True):
+def convert_paths_to_arrays(y, if_reshape=True, is_mask=False):
     y_arr = []
     for image in y:
         image_bytes_mask = tf.io.read_file(image)
         image_mask = tfio.image.decode_dicom_image(image_bytes_mask,color_dim = True,  dtype=tf.uint16)
-        image_mask = tf.image.resize_with_pad(image_mask[0], config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE['WIDTH'])
+        if (config.prep == "Y" and if_reshape != True and is_mask==False):
+            image_mask /= 256
+            image_mask = tf.image.resize_with_pad(image_mask, config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE['WIDTH'])
+            image_mask = gaussian_blur(image_mask)
+            image_mask = tf_equalize_histogram(image_mask)
+            image_mask = tf.reshape(image_mask, [config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE['WIDTH'],1])
+        else:
+            image_mask = tf.image.resize_with_pad(image_mask[0], config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE['WIDTH'])
+
+
         current_min = tf.reduce_min(image_mask)
         current_max = tf.reduce_max(image_mask)
         image_mask = (image_mask - current_min) / (current_max - current_min)
         if if_reshape:
-            image_mask = tf.reshape(image_mask, [-1, 1])
+            image_mask = tf.reshape(image_mask, [-1, 1])            
         image_as_array = np.squeeze(image_mask.numpy())
         y_arr.append(image_as_array)
     return np.array(y_arr)

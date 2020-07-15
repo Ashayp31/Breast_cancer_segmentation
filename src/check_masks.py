@@ -32,14 +32,18 @@ def main() -> None:
 
     images, image_masks = import_cbisddsm_segmentation_training_dataset()
 
-    # Split training dataset into training/validation sets (75%/25% split).
-    X_train, X_val, y_train, y_val = train_test_split(images,
-                                                        image_masks,
-                                                        test_size=0.25,
-                                                        random_state=config.RANDOM_SEED,
-                                                        shuffle=True)
-    dataset_train = create_dataset_masks(X_train, y_train)
-    dataset_val = create_dataset_masks(X_val, y_val)
+
+    for image_mask_name in image_masks:
+        image_bytes_mask = tf.io.read_file(image_mask_name)
+        image_mask = tfio.image.decode_dicom_image(image_bytes_mask, color_dim = True)
+        image_mask = tf.image.resize_with_pad(image_mask, config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE['WIDTH'])
+        current_min_mask = tf.reduce_min(image_mask)
+        current_max_mask = tf.reduce_max(image_mask)
+        image_mask = (image_mask - current_min_mask) / (current_max_mask - current_min_mask)
+        array = np.array(image_mask)
+        sum_arr = sum(array)
+        if sum_arr>300000:
+            print image_mask_name
 
     
 # #     image_ex, mask_ex = parse_function_segmentation_test(X_train[0], y_train[0])
@@ -83,21 +87,6 @@ def main() -> None:
                                   config.EPOCH_2)
 
 
-        # Save the model
-        model.save("../saved_models/segmentation_model-{}_imagesize-{}x{}_filtered_{}.h5".format(config.segmodel, str(config.VGG_IMG_SIZE['HEIGHT']),   str(config.VGG_IMG_SIZE['WIDTH']), config.prep))
-
-    elif config.run_mode == "test":
-        model = load_model("../saved_models/segmentation_model-{}_imagesize-{}x{}_filtered_{}.h5".format(config.segmodel, str(config.VGG_IMG_SIZE['HEIGHT']), str(config.VGG_IMG_SIZE['WIDTH']), config.prep), compile=False)
-
-    # Evaluate model results.
-    y_pred = make_predictions(model, dataset_val)
-
-    evaluate_segmentation(y_val, y_pred)
-    visualise_examples(X_val, y_val, y_pred)
-
-
-    # Print training runtime.
-    print_runtime("Total", round(time.time() - start_time, 2))
 
 
 def parse_command_line_arguments() -> None:
