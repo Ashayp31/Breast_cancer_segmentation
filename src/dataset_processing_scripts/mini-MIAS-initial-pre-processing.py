@@ -1,3 +1,7 @@
+"""
+Code as written by Adam Jamour for preprocessing of miniMIAS data
+"""
+
 import os
 
 import cv2

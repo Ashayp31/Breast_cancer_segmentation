@@ -22,6 +22,9 @@ def main() -> None:
 
     
 def join_paths_and_remove_duplicates(mask_path, img_path, file_name, output_path):
+    """
+    Function to merge the original image paths with the image mask paths
+    """
     df_masks = pd.read_csv(mask_path, usecols=["img","img_path","label"])
     df_masks['shortened_img_name'] = df_masks.apply(lambda x: x["img"][:-2], axis=1)
     df_masks.drop_duplicates(subset="shortened_img_name", keep = False, inplace=True)

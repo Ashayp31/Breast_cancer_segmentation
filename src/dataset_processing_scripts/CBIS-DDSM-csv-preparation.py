@@ -1,3 +1,7 @@
+"""
+Code as written by Shuen-Jen Chen for generating a CSV for file paths and classes of CBIS-DDSM data
+"""
+
 import os
 
 import pandas as pd

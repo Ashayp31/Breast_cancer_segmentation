@@ -5,16 +5,18 @@ Variables set by the command line arguments dictating which parts of the program
 # Constants
 RANDOM_SEED = 111
 VGG_IMG_SIZE = {
-    "HEIGHT": 1024,
-    "WIDTH": 640
+    "HEIGHT": 608,
+    "WIDTH": 416
+#     "HEIGHT": 1024,
+#     "WIDTH": 640
 }
 VGG_IMG_SIZE_LARGE = {
-    "HEIGHT": 2048,
-    "WIDTH": 2048
+    "HEIGHT": 3040,
+    "WIDTH": 2080
 }
 BATCH_SIZE = 2
-EPOCH_1 = 120
-EPOCH_2 = 60
+EPOCH_1 = 80
+EPOCH_2 = 70
 
 # Variables set by command line arguments/flags
 dataset = "mini-MIAS"   # The dataset to use.
@@ -24,3 +26,6 @@ verbose_mode = False    # Boolean used to print additional logs for debugging pu
 imagesize = "small"
 segmodel = "RS50"
 prep = "N"
+pretrained = "imagenet"
+dropout = "N"
+patches = "N"

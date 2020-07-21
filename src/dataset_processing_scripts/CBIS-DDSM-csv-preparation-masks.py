@@ -1,3 +1,8 @@
+"""
+Original code by Shuen-Jen Chen used for processing CBIS-DDSM images for classifiaction but adjusted by me for generation of paths of ground truth masks as well
+"""
+
+
 import os
 
 import pandas as pd
@@ -17,6 +22,7 @@ def main() -> None:
         Generate CSV file columns:
           img: image id (e.g Calc-Test_P_00038_LEFT_CC => <case type>_<patient id>_<left or right breast>_<CC or MLO>)
           img_path: image path on the GPU machine
+          img_mask_path: image path on the GPU machine for ground truth tumour mask
           label: image pathology (BENIGN or MALIGNANT)
     :return: None
     """

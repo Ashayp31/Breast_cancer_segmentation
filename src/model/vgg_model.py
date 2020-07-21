@@ -46,7 +46,10 @@ def generate_vgg_model(classes_len: int):
 
     # Add fully connected hidden layers.
     model.add(Dense(units=512, activation='relu', name='Dense_Intermediate_1'))
+    model.add(Dropout(0.25))
     model.add(Dense(units=32, activation='relu', name='Dense_Intermediate_2'))
+    model.add(Dropout(0.25))
+
 
     # Possible dropout for regularisation can be added later and experimented with:
     # model.add(Dropout(0.1, name='Dropout_Regularization'))

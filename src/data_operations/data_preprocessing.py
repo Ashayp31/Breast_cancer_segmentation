@@ -1,3 +1,8 @@
+"""
+Preliminary code created by Adam Jaamour for data preprocessing of minimias and cbis-ddsm dataset
+Code adapted and altered by Me for use for own specific tasks
+"""
+
 import os
 import random
 
@@ -51,14 +56,28 @@ def import_cbisddsm_training_dataset(label_encoder):
     return list_IDs, labels
 
 
+def import_cbisddsm_mask_classification_training_dataset(label_encoder):
+    """
+    Import the dataset getting the image paths (downloaded on BigTMP) and encoding the labels.
+    :param label_encoder: The label encoder.
+    :return: Two arrays, one for the image paths and one for the encoded labels.
+    """
+    df = pd.read_csv("../data/CBIS-DDSM-mask/final_mask_training.csv")
+    list_IDs = df['mask_img_path'].values
+    labels = encode_labels(df['label'].values, label_encoder)
+    return list_IDs, labels
+
+
 def import_cbisddsm_segmentation_training_dataset():
     """
     Import the dataset getting the image paths (downloaded on BigTMP) for images and masks.
     :param label_encoder: The label encoder.
     :return: Two arrays, one for the image paths and one for the encoded labels.
     """
-#     df = pd.read_csv("../data/CBIS-DDSM-mask/shortened_mask_training_short.csv")
-    df = pd.read_csv("../data/CBIS-DDSM-mask/shortened_mask_training.csv")
+#     df = pd.read_csv("../data/CBIS-DDSM-mask/final_mask_training_short.csv")
+
+    df = pd.read_csv("../data/CBIS-DDSM-mask/final_mask_training.csv")
+
     list_IDs = df['img_path'].values
     ground_truth_ids = df['mask_img_path'].values
     return list_IDs, ground_truth_ids

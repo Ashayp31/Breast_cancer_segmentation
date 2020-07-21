@@ -33,21 +33,21 @@ def generate_vgg_model_large(classes_len: int):
 
     # Generate extra convolutional layers for model to put at the beginning
     model_base.add(input_model)
-    model_base.add(Conv2D(16, (3, 3),
+    model_base.add(Conv2D(16, (7, 7),
                       activation='relu',
                       padding='same'))
     
-    model_base.add(Conv2D(16, (3, 3),
+    model_base.add(Conv2D(16, (7, 7),
                       activation='relu',
                       padding='same'))
     
     model_base.add(MaxPooling2D((2, 2), strides=(2, 2)))
     
-    model_base.add(Conv2D(32, (3, 3),
+    model_base.add(Conv2D(32, (5, 5),
                       activation='relu',
                       padding='same'))
     
-    model_base.add(Conv2D(32, (3, 3),
+    model_base.add(Conv2D(32, (5, 5),
                       activation='relu',
                       padding='same'))
     
@@ -95,7 +95,9 @@ def generate_vgg_model_large(classes_len: int):
 
     # Add fully connected hidden layers.
     model.add(Dense(units=512, activation='relu', name='Dense_Intermediate_1'))
+    model.add(Dropout(0.25))
     model.add(Dense(units=32, activation='relu', name='Dense_Intermediate_2'))
+    model.add(Dropout(0.25))
 
     # Possible dropout for regularisation can be added later and experimented with:
     # model.add(Dropout(0.1, name='Dropout_Regularization'))
