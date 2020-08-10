@@ -1,6 +1,4 @@
-# Breast-Cancer-Detection-Code
-
-## Usage on a GPU lab machine
+# Breast-Cancer-Detection-And-Segmentation-Code
 
 ```
 Thesis supervisor(s)
@@ -12,6 +10,8 @@ The project is part of the MSc Artificial Intelligence at the University of St A
 
 The project's supervisor is Dr David Harris-Birtill and co-supervisor is Lewis McMillan.
 ```
+
+## Usage on a GPU lab machine
 
 Clone the repository:
 
