@@ -9,7 +9,10 @@ import numpy as np
 
 from tensorflow.keras.models import *
 from tensorflow.keras.layers import *
+from tensorflow.keras import regularizers
+
 from model.resnet import ResNet50, ResNet101, ResNet152, ResNet50V2, ResNet101V2, ResNet152V2
+
 
 def u_net_res_model(n_classes = 1, input_height=576,
           input_width=576):
@@ -36,34 +39,46 @@ def u_net_res_model(n_classes = 1, input_height=576,
     o = f4
 
     o = (ZeroPadding2D((1, 1)))(o)
-    o = (Conv2D(512, (3, 3), padding='valid', activation='relu'))(o)
+    if config.reg == "N":
+        o = (Conv2D(512, (3, 3), padding='valid', activation='relu'))(o)
+    else:
+        o = (Conv2D(512, (3, 3), padding='valid', activation='relu', kernel_regularizer=regularizers.l2(0.001)))(o)
     o = (BatchNormalization())(o)
     if config.dropout == "Y":
-        o = Dropout(0.15)(o)
+        o = Dropout(0.25)(o)
 
     o = (UpSampling2D((2, 2)))(o)
     o = (concatenate([o, f3], axis=-1))
     o = (ZeroPadding2D((1, 1)))(o)
-    o = (Conv2D(256, (3, 3), padding='valid', activation='relu'))(o)
+    if config.reg == "N":
+        o = (Conv2D(256, (3, 3), padding='valid', activation='relu'))(o)
+    else:
+        o = (Conv2D(256, (3, 3), padding='valid', activation='relu', kernel_regularizer=regularizers.l2(0.001)))(o)
     o = (BatchNormalization())(o)
     if config.dropout == "Y":
-        o = Dropout(0.15)(o)
+        o = Dropout(0.25)(o)
 
     o = (UpSampling2D((2, 2)))(o)
     o = (concatenate([o, f2], axis=-1))
     o = (ZeroPadding2D((1, 1)))(o)
-    o = (Conv2D(128, (3, 3), padding='valid', activation='relu'))(o)
+    if config.reg == "N":
+        o = (Conv2D(128, (3, 3), padding='valid', activation='relu'))(o)
+    else:
+        o = (Conv2D(128, (3, 3), padding='valid', activation='relu', kernel_regularizer=regularizers.l2(0.001)))(o)
     o = (BatchNormalization())(o)
     if config.dropout == "Y":
-        o = Dropout(0.2)(o)
+        o = Dropout(0.35)(o)
 
     o = (UpSampling2D((2, 2)))(o)
     o = (concatenate([o, f1], axis=-1))
     o = (ZeroPadding2D((1, 1)))(o)
-    o = (Conv2D(64, (3, 3), padding='valid', activation='relu'))(o)
+    if config.reg == "N":
+        o = (Conv2D(64, (3, 3), padding='valid', activation='relu'))(o)
+    else:
+        o = (Conv2D(64, (3, 3), padding='valid', activation='relu', kernel_regularizer=regularizers.l2(0.001)))(o)
     o = (BatchNormalization())(o)
     if config.dropout == "Y":
-        o = Dropout(0.2)(o)
+        o = Dropout(0.35)(o)
     
     if config.segmodel == "RS50Ext":
         o = (UpSampling2D((2, 2)))(o)
@@ -74,7 +89,10 @@ def u_net_res_model(n_classes = 1, input_height=576,
 
     o = (UpSampling2D((2, 2)))(o)
     o = (ZeroPadding2D((1, 1)))(o)
-    o = (Conv2D(32, (3, 3), padding='valid', activation='relu'))(o)
+    if config.reg == "N":
+        o = (Conv2D(32, (3, 3), padding='valid', activation='relu'))(o)
+    else:
+        o = (Conv2D(32, (3, 3), padding='valid', activation='relu', kernel_regularizer=regularizers.l2(0.001)))(o)
     o = (BatchNormalization())(o)
 
     o = Conv2D(n_classes, (3, 3), padding='same')(o)

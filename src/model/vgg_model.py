@@ -43,12 +43,15 @@ def generate_vgg_model(classes_len: int):
 
     # Flatten layer to convert each input into a 1D array (no parameters in this layer, just simple pre-processing).
     model.add(Flatten())
-
+    if config.dropout == "Y":
+        model.add(Dropout(0.3))
     # Add fully connected hidden layers.
     model.add(Dense(units=512, activation='relu', name='Dense_Intermediate_1'))
-    model.add(Dropout(0.25))
+    if config.dropout == "Y":
+        model.add(Dropout(0.4))
     model.add(Dense(units=32, activation='relu', name='Dense_Intermediate_2'))
-    model.add(Dropout(0.25))
+    if config.dropout == "Y":
+        model.add(Dropout(0.4))
 
 
     # Possible dropout for regularisation can be added later and experimented with:

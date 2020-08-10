@@ -246,27 +246,41 @@ def plot_training_results(hist_input, plot_name: str, is_frozen_layers) -> None:
     :param hist_input: The training history.
     :param plot_name: The plot name.
     """
-    title = "Training Loss and Accuracy on Dataset"
+    title_loss = "Training Loss on Dataset"
+    title_accuracy = "Training Accuracy on Dataset"
+
     if not is_frozen_layers:
-        title += " (all layers unfrozen)"
+        title_loss += " (all layers unfrozen)"
+        title_accuracy += " (all layers unfrozen)"
+
 
     n = len(hist_input.history["loss"])
     plt.style.use("ggplot")
     plt.figure()
-    plt.plot(np.arange(0, n), hist_input.history["loss"], label="train_loss")
-    plt.plot(np.arange(0, n), hist_input.history["val_loss"], label="val_loss")
+    if config.dataset == "mini-MIAS":
+        plt.plot(np.arange(0, n), hist_input.history["loss"], label="train_loss")
+        plt.plot(np.arange(0, n), hist_input.history["val_loss"], label="val_loss")
+    elif config.dataset == "CBIS-DDSM":
+        plt.plot(np.arange(0, n), hist_input.history["loss"], label="train_loss")
+        plt.plot(np.arange(0, n), hist_input.history["val_loss"], label="val_loss")
+    plt.title(title_loss)
+    plt.xlabel("Epoch #")
+    plt.ylabel("Loss")
+    ax.legend(loc="lower left")
+    plt.savefig("../output/dataset-{}_model-{}_imagesize-{}_{}_loss.png".format(config.dataset, config.model, config.imagesize, plot_name))
+    
+    plt.figure()
     if config.dataset == "mini-MIAS":
         plt.plot(np.arange(0, n), hist_input.history["categorical_accuracy"], label="train_acc")
         plt.plot(np.arange(0, n), hist_input.history["val_categorical_accuracy"], label="val_acc")
     elif config.dataset == "CBIS-DDSM":
         plt.plot(np.arange(0, n), hist_input.history["binary_accuracy"], label="train_acc")
-        plt.plot(np.arange(0, n), hist_input.history["val_loss"], label="val_loss")
-    plt.title(title)
+        plt.plot(np.arange(0, n), hist_input.history["val_binary_accuracy"], label="val_acc")
+    plt.title(title_accuracy)
     plt.xlabel("Epoch #")
-    plt.ylabel("Loss/Accuracy")
+    plt.ylabel("Accuracy")
     plt.legend(loc="lower left")
-    plt.savefig("../output/dataset-{}_model-{}_imagesize-{}_{}.png".format(config.dataset, config.model, config.imagesize, plot_name))
-    plt.show()
+    plt.savefig("../output/dataset-{}_model-{}_imagesize-{}_{}_accuracy.png".format(config.dataset, config.model, config.imagesize, plot_name))
 
     
 def plot_training_results_segmentation(hist_input, plot_name: str, is_frozen_layers) -> None:
@@ -276,24 +290,32 @@ def plot_training_results_segmentation(hist_input, plot_name: str, is_frozen_lay
     :param hist_input: The training history.
     :param plot_name: The plot name.
     """
-    title = "Training Loss and Accuracy on Dataset"
+    title_loss = "Training Loss on Dataset"
+    title_accuracy = "Training Accuracy on Dataset"
+
     if not is_frozen_layers:
-        title += " (all layers unfrozen)"
+        title_loss += " (all layers unfrozen)"
+        title_accuracy += " (all layers unfrozen)"
 
     n = len(hist_input.history["loss"])
     plt.style.use("ggplot")
     plt.figure()
-    plt.plot(np.arange(0, n), hist_input.history["loss"], label="train_loss")
-    plt.plot(np.arange(0, n), hist_input.history["val_loss"], label="val_loss")
     plt.plot(np.arange(0, n), hist_input.history["binary_accuracy"], label="training_accuracy")
     plt.plot(np.arange(0, n), hist_input.history["val_binary_accuracy"], label="val_accuracy")
-    plt.title(title)
+    plt.title(title_accuracy)
     plt.xlabel("Epoch #")
-    plt.ylabel("Loss/IOU")
-    plt.legend(loc="lower left")
-    plt.savefig("../output/{}_CBIS_{}_imagesize-{}x{}_filtered_{}.png".format(plot_name, config.segmodel, str(config.VGG_IMG_SIZE['HEIGHT']),str(config.VGG_IMG_SIZE['WIDTH']), config.prep))
-    plt.show()
+    plt.ylabel("Accuracy")
+    plt.savefig("../output/{}_CBIS_{}_imagesize-{}x{}_filtered_{}_accuracy.png".format(plot_name, config.segmodel, str(config.VGG_IMG_SIZE['HEIGHT']),str(config.VGG_IMG_SIZE['WIDTH']), config.prep))
+    
+    plt.figure()
+    plt.plot(np.arange(0, n), hist_input.history["loss"], label="train_loss")
+    plt.plot(np.arange(0, n), hist_input.history["val_loss"], label="val_loss")
+    plt.title(title_loss)
+    plt.xlabel("Epoch #")
+    plt.ylabel("Loss")
+    plt.savefig("../output/{}_CBIS_{}_imagesize-{}x{}_filtered_{}_loss.png".format(plot_name, config.segmodel, str(config.VGG_IMG_SIZE['HEIGHT']),str(config.VGG_IMG_SIZE['WIDTH']), config.prep))
 
+    
 def evaluate_segmentation(y_true, y_pred, threshold = 0.5):
     """
     Function for showing evaluation results of segmentation displaying:
@@ -303,16 +325,11 @@ def evaluate_segmentation(y_true, y_pred, threshold = 0.5):
     global accuracy
     confusion matrix
     """
-    if config.patches == "N":
+    if config.patches == "full":
         y_true_arr = convert_paths_to_arrays(y_true)
         y_true_arr = np.resize(y_true_arr, (len(y_true_arr),config.VGG_IMG_SIZE['HEIGHT']*config.VGG_IMG_SIZE['WIDTH'], 1))
     else:
-        y_true_arr = convert_generator_to_array(y_true)
-        
-    print(y_pred.shape)
-    print(y_true_arr.shape)
-    print(np.amax(y_pred))
-    print(np.amax(y_true_arr))
+        y_true_arr = convert_generator_to_array(y_true, 1, "full")
 
     mask_true_argmax = np.where(y_true_arr > 0.5, 1, 0)
     mask_pred_argmax = np.where(y_pred > threshold, 1, 0)
@@ -348,21 +365,46 @@ def evaluate_segmentation(y_true, y_pred, threshold = 0.5):
     if float(confusion[1, 1] + confusion[0, 1]) != 0:
         precision = float(confusion[1, 1]) / float(confusion[1, 1] + confusion[0, 1])
     print("Precision: " + str(precision))
+    
+    try:
+        get_number_of_overlaps(mask_pred_argmax, mask_true_argmax)
+    except:
+        pass
+    
+    
+def get_number_of_overlaps(y_pred, y_true):
+    batch_size = y_true.shape[0]
+    mean_dice_channel = 0.
+    overlapped = 0
+    for i in range(batch_size):
+        channel_dice = single_dice_coef(y_true[i, :, 0], y_pred[i, :, 0])
+        if channel_dice > 0:
+            overlapped += 1
+    print("Number of overlapped is: " + str(overlapped) + " out of: " + str(batch_size))
+    return 
 
 
 def visualise_examples(original, mask_true, mask_pred, threshold = 0.5):
     """
     Function to plot 3 random examples of segmentation masks showing the input image, ground truth mask and finally the segmented mask
     """
-    random_images = [28, 141, 331, 255, 104, 299]
-#     random_images = [1, 3, 5]
+#     random_images = [28, 141, 331, 255, 104, 299]
+    random_images = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     samples_len = len(random_images)
-    original_images = original[random_images]
-    mask_true_images = mask_true[random_images]
-    mask_pred_images = mask_pred[random_images]
 
-    original_images_arr = convert_paths_to_arrays(original_images, if_reshape=False)
-    mask_true_arr = convert_paths_to_arrays(mask_true_images, if_reshape=False, is_mask=True)
+    if config.patches == "full":
+        original_images = original[random_images]
+        mask_true_images = mask_true[random_images]
+
+        original_images_arr = convert_paths_to_arrays(original_images, if_reshape=False)
+        mask_true_arr = convert_paths_to_arrays(mask_true_images, if_reshape=False, is_mask=True)
+    else:
+        y_true_arr = convert_generator_to_array(original, 1, "partial")
+        y_true_orig = convert_generator_to_array(original, 0, "partial")
+        mask_true_arr = y_true_arr[random_images]
+        original_images_arr = y_true_orig[random_images]
+
+    mask_pred_images = mask_pred[random_images]
     mask_pred_arr = mask_pred_images
 
 
@@ -370,23 +412,49 @@ def visualise_examples(original, mask_true, mask_pred, threshold = 0.5):
     mask_pred_arr = np.where(mask_pred_arr>threshold, 1, 0)
     
     # Sample results
-    fig,ax = plt.subplots(samples_len, 3)
+    fig,ax = plt.subplots(samples_len, 3, figsize=(30,30))
     plt.rcParams["axes.grid"] = False
     for idx in range(samples_len):
         mask_pred_arr_idx = np.reshape(mask_pred_arr[idx], (config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE['WIDTH']))
-        ax[idx, 0].imshow(original_images_arr[idx], cmap='gray')
-        ax[idx, 1].imshow(mask_true_arr[idx], cmap='gray')
-        ax[idx, 2].imshow(mask_pred_arr_idx, cmap='gray')
+        if config.patches != "full":
+            original_images_arr_idx = np.reshape(original_images_arr[idx], (config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE['WIDTH']))
+            mask_true_arr_idx = np.reshape(mask_true_arr[idx], (config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE['WIDTH']))
+
+            ax[idx, 0].imshow(original_images_arr_idx, cmap='gray')
+            ax[idx, 1].imshow(mask_true_arr_idx, cmap='gray')
+            ax[idx, 2].imshow(mask_pred_arr_idx, cmap='gray')
+        else:
+            ax[idx, 0].imshow(original_images_arr[idx], cmap='gray')
+            ax[idx, 1].imshow(mask_true_arr[idx], cmap='gray')
+            ax[idx, 2].imshow(mask_pred_arr_idx, cmap='gray')
     plt.grid(b=None)
     plt.savefig('../output/segmentation_examples_{}_image_size_{}x{}_filtered_{}.png'.format(config.segmodel, str(config.VGG_IMG_SIZE['HEIGHT']), str(config.VGG_IMG_SIZE['WIDTH']), config.prep))
     
-    fig,ax = plt.subplots(samples_len)
+    fig,ax = plt.subplots(samples_len, figsize=(30,30))
     plt.rcParams["axes.grid"] = False
     for idx in range(samples_len):
         mask_pred_arr_idx = np.reshape(mask_pred_arr[idx], (config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE['WIDTH']))
-        ax[idx].imshow(original_images_arr[idx], cmap='gray')
-        ax[idx].imshow(mask_true_arr[idx], cmap='Greens', alpha=0.5)
-        ax[idx].imshow(mask_pred_arr_idx, cmap='Reds', alpha=0.2)
+        if config.patches != "full":
+            original_images_arr_idx = np.reshape(original_images_arr[idx], (config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE['WIDTH']))
+            mask_true_arr_idx = np.reshape(mask_true_arr[idx], (config.VGG_IMG_SIZE['HEIGHT'], config.VGG_IMG_SIZE['WIDTH']))
+
+            shape = original_images_arr_idx.shape
+            dim = np.zeros((shape[0],shape[1]))
+            mask_true_arr_idx = np.stack((dim,mask_true_arr_idx, dim), axis=2)
+            mask_pred_arr_idx = np.stack((mask_pred_arr_idx,dim, dim), axis=2)
+
+            ax[idx].imshow(original_images_arr_idx, cmap='gray')
+            ax[idx].imshow(mask_true_arr_idx, alpha=0.5)
+            ax[idx].imshow(mask_pred_arr_idx, alpha=0.4)
+        else:
+            shape = original_images_arr[idx].shape
+            dim = np.zeros((shape[0],shape[1]))
+            mask_true_arr_idx = np.stack((dim, mask_true_arr[idx], dim), axis=2)
+            mask_pred_arr_idx = np.stack((mask_pred_arr_idx, dim, dim), axis=2)
+            
+            ax[idx].imshow(original_images_arr[idx], cmap='gray')
+            ax[idx].imshow(mask_true_arr[idx], alpha=0.5)
+            ax[idx].imshow(mask_pred_arr_idx, alpha=0.4)
     plt.savefig('../output/segmentation_OVERLAPS_{}_image_size_{}x{}_filtered_{}.png'.format(config.segmodel, str(config.VGG_IMG_SIZE['HEIGHT']), str(config.VGG_IMG_SIZE['WIDTH']), config.prep))
 
 
@@ -398,6 +466,7 @@ def compute_iou(y_pred, y_true):
     y_pred = y_pred.flatten()
     y_true = y_true.flatten()
     current = confusion_matrix(y_true, y_pred, labels=[0, 1])
+
     # compute mean iou
     intersection = np.diag(current)
     ground_truth_set = current.sum(axis=1)
@@ -425,6 +494,7 @@ def mean_dice_coef(y_pred, y_true):
     # shape of y_true and y_pred_bin: (n_samples, height, width, n_channels)
     batch_size = y_true.shape[0]
     mean_dice_channel = 0.
+
     for i in range(batch_size):
         channel_dice = single_dice_coef(y_true[i, :, 0], y_pred[i, :, 0])
         mean_dice_channel += channel_dice / batch_size
@@ -452,7 +522,7 @@ def convert_paths_to_arrays(y, if_reshape=True, is_mask=False):
 
 
         current_min = tf.reduce_min(image_mask)
-        current_max = tf.reducex,_max(image_mask)
+        current_max = tf.reduce_max(image_mask)
         image_mask = (image_mask - current_min) / (current_max - current_min)
         if if_reshape:
             image_mask = tf.reshape(image_mask, [-1, 1])            
@@ -461,16 +531,23 @@ def convert_paths_to_arrays(y, if_reshape=True, is_mask=False):
     return np.array(y_arr)
 
 
-def convert_generator_to_array(true_generator):
+def convert_generator_to_array(true_generator, odd_or_even, amount):
     true_array = []
-    i=0
-    for element in dataset_val:
-        if i%2 == 1:
-            array_element = np.array(element)
-            # Add on one for each element in batch
-            for j in range(len(array_element)):
-                true_array.append(array_element[j])
-                
+    k = 0
+    for element in true_generator:
+        array_element = np.array(element)
+        
+        # Add on one for each element in batch
+        wanted_elemented = array_element[odd_or_even]
+        for j in range(len(wanted_elemented)):
+            true_array.append(wanted_elemented[j])
+            
+        k += 1
+        if amount == "partial":
+            if k==10:
+                break
+        
+    true_array = np.asarray(true_array)
     return true_array
 
                 

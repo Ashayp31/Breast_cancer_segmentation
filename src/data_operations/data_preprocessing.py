@@ -56,6 +56,18 @@ def import_cbisddsm_training_dataset(label_encoder):
     return list_IDs, labels
 
 
+def import_cbisddsm_testing_dataset(label_encoder):
+    """
+    Import the dataset getting the image paths (downloaded on BigTMP) and encoding the labels.
+    :param label_encoder: The label encoder.
+    :return: Two arrays, one for the image paths and one for the encoded labels.
+    """
+    df = pd.read_csv("../data/CBIS-DDSM/testing.csv") 
+    list_IDs = df['img_path'].values
+    labels = encode_labels(df['label'].values, label_encoder)
+    return list_IDs, labels
+
+
 def import_cbisddsm_mask_classification_training_dataset(label_encoder):
     """
     Import the dataset getting the image paths (downloaded on BigTMP) and encoding the labels.
@@ -77,6 +89,21 @@ def import_cbisddsm_segmentation_training_dataset():
 #     df = pd.read_csv("../data/CBIS-DDSM-mask/final_mask_training_short.csv")
 
     df = pd.read_csv("../data/CBIS-DDSM-mask/final_mask_training.csv")
+
+    list_IDs = df['img_path'].values
+    ground_truth_ids = df['mask_img_path'].values
+    return list_IDs, ground_truth_ids
+
+
+def import_cbisddsm_segmentation_testing_dataset():
+    """
+    Import the dataset getting the image paths (downloaded on BigTMP) for images and masks.
+    :param label_encoder: The label encoder.
+    :return: Two arrays, one for the image paths and one for the encoded labels.
+    """
+
+    df = pd.read_csv("../data/CBIS-DDSM-mask/final_mask_testing.csv")
+#     df = pd.read_csv("../data/CBIS-DDSM-mask/final_mask_training-Copy1.csv")
 
     list_IDs = df['img_path'].values
     ground_truth_ids = df['mask_img_path'].values
@@ -172,29 +199,36 @@ def generate_image_transforms(images, labels):
     images_with_transforms = images
     labels_with_transforms = labels
 
+    # Possible tranformations to do
     available_transforms = {'rotate': random_rotation,
                             'noise': random_noise,
                             'horizontal_flip': horizontal_flip}
 
+    # Get count of each class and find out how many needs to be added to each class so that they have the same number
+    # Class with highest count will have 0 to add
     class_balance = get_class_balances(labels)
     max_count = max(class_balance)
     to_add = [max_count - i for i in class_balance]
 
+    # For each type of class (2 binary, 3 mini mias)
     for i in range(len(to_add)):
         if int(to_add[i]) == 0:
             continue
+        # Generate label of class
         label = np.zeros(len(to_add))
         label[i] = 1
+        # Get indices in data of samples of this class
         indices = [j for j, x in enumerate(labels) if np.array_equal(x, label)]
         indiv_class_images = [images[j] for j in indices]
 
+        # For the number of samples to add as calculated before
         for k in range(int(to_add[i])):
-            a = create_individual_transform(indiv_class_images[k % len(indiv_class_images)], available_transforms)
+            # Generate a a transoformed image from a sample in the class
             transformed_image = create_individual_transform(indiv_class_images[k % len(indiv_class_images)],
                                                             available_transforms)
             transformed_image = transformed_image.reshape(1, config.VGG_IMG_SIZE['HEIGHT'],
                                                           config.VGG_IMG_SIZE['WIDTH'], 1)
-
+            # Append transormed images and labels to current list
             images_with_transforms = np.append(images_with_transforms, transformed_image, axis=0)
             transformed_label = label.reshape(1, len(label))
             labels_with_transforms = np.append(labels_with_transforms, transformed_label, axis=0)

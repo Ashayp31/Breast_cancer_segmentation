@@ -28,7 +28,9 @@ def main() -> None:
     # Start recording time.
     start_time = time.time()
 
-    df = pd.read_csv("../data/CBIS-DDSM-mask/final_mask_training.csv")
+#     df = pd.read_csv("../data/CBIS-DDSM-mask/final_mask_training.csv")
+    
+    df = pd.read_csv("../data/CBIS-DDSM-mask/shortened_mask_testing.csv")
 
     images = df['img_path'].values
     image_masks = df['mask_img_path'].values
@@ -46,11 +48,6 @@ def main() -> None:
         sum_arr = sum(sum(sum(array)))
         if sum_arr>200000:
             print (image_mask_name)
-            fig,ax = plt.subplots(1,1,figsize=[15,15])
-            ax.imshow(array[0,:,:,0], cmap='gray')
-            plt.savefig("../output/{}".format(str(i)))
-            i += 1
-
 
 
 

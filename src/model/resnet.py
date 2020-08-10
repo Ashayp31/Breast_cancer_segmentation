@@ -15,6 +15,7 @@ from tensorflow.keras.utils import get_source_inputs
 from tensorflow.keras.layers import Concatenate, Dense, Dropout, Flatten, Input
 from tensorflow.python.keras import Sequential
 from tensorflow.python.keras.layers import Conv2D, MaxPooling2D, ZeroPadding2D, Lambda
+from tensorflow.keras import regularizers
 from tensorflow.keras import models
 from tensorflow.keras import layers
 from tensorflow.keras import backend
@@ -86,7 +87,11 @@ def block1(x, filters, kernel_size=3, stride=1,
                                   name=name + '_2_bn')(x)
     x = layers.Activation('relu', name=name + '_2_relu')(x)
 
-    x = layers.Conv2D(4 * filters, 1, name=name + '_3_conv')(x)
+    if config.reg == "N":
+        x = layers.Conv2D(4 * filters, 1, name=name + '_3_conv')(x)
+    else:
+        x = layers.Conv2D(4 * filters, 1, name=name + '_3_conv', kernel_regularizer=regularizers.l2(0.001))(x)
+
     x = layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5,
                                   name=name + '_3_bn')(x)
 
@@ -388,19 +393,19 @@ def ResNet50(include_top=False,
     def stack_fn(x):
         x = stack1(x, 64, 3, stride1=1, name='conv2')
         if config.dropout == "Y":
-            x = Dropout(0.15)(x)
+            x = Dropout(0.25)(x)
         a1 = x
         x = stack1(x, 128, 4, name='conv3')
         if config.dropout == "Y":
-            x = Dropout(0.15)(x)
+            x = Dropout(0.25)(x)
         a2 = x
         x = stack1(x, 256, 6, name='conv4')
         if config.dropout == "Y":
-             x = Dropout(0.2)(x)
+             x = Dropout(0.35)(x)
         a3 = x
         x = stack1(x, 512, 3, name='conv5')
         if config.dropout == "Y":
-             x = Dropout(0.2)(x)
+             x = Dropout(0.35)(x)
         a4 = x
         return a1, a2, a3, a4, x
     if weights == "none":

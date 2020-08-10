@@ -1,6 +1,6 @@
 from tensorflow.keras.losses import BinaryCrossentropy, MeanSquaredError, binary_crossentropy
-from tensorflow.keras.metrics import BinaryAccuracy
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.metrics import BinaryAccuracy, MeanIoU
+from tensorflow.keras.optimizers import Adam, Adadelta
 from tensorflow.python.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 import tensorflow as tf
 import config
@@ -16,12 +16,16 @@ def train_segmentation_network(model, train_x, val_x, epochs1, epochs2):
         * Unfreeze all layers and retrain with smaller learning rate
     """
     l_r = 0.001
-    
+
     # Assuming resnet 50
     if config.pretrained == "imagenet":
         for i in range(140):
             model.layers[i].trainable = False
-    elif config.patches == "Y":
+    else:
+        for i in range(len(model.layers)):
+            model.layers[i].trainable = True
+        
+    if config.patches == "patch":
         l_r = 0.0001
 
     # Train model with frozen layers (all training with early stopping dictated by loss in validation over 3 runs).
@@ -31,6 +35,7 @@ def train_segmentation_network(model, train_x, val_x, epochs1, epochs2):
                       loss=dual_loss_weighted,
                       metrics=[BinaryAccuracy()])
 
+    
     hist_1 = model.fit(x=train_x,
                            validation_data=val_x,
                            epochs=epochs1,
@@ -49,11 +54,12 @@ def train_segmentation_network(model, train_x, val_x, epochs1, epochs2):
     if config.pretrained == "imagenet":
         for i in range(len(model.layers)):
             model.layers[i].trainable = True
-
-    model.compile(optimizer=Adam(lr=0.00005),
+            
+    model.compile(optimizer=Adam(lr=0.0001),
                       loss=dual_loss_weighted,
                       metrics=[BinaryAccuracy()])
 
+    
     hist_2 = model.fit(x=train_x,
                            validation_data=val_x,
                            epochs=epochs2,

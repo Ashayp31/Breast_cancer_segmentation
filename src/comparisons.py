@@ -6,6 +6,7 @@ Script added and ammended for evaluation and visualisation of segmentation tasks
 import json
 
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -17,7 +18,7 @@ from sklearn.metrics import jaccard_score
 from tensorflow.keras import backend as K
 import tensorflow as tf
 import tensorflow_io as tfio
-from data_operations.dataset_feed import gaussian_blur, tf_equalize_histogram
+from io import StringIO
 
 import config
 
@@ -30,8 +31,9 @@ def plot_comparison_chart_own_results() -> None:
     """
     title = "Accuracy Comparison of models"
     
-    names = ["Model 1", "Model 2", "Model 3", "Model 4"]
-    accuracy = [0.65, 0.63, 0.65, 0.67]
+    names = ["Model 1", "Model 2", "Model 3", "Model 4", "Model 5", "Model 6", "Model 7"]
+    # Small basic, small adv, large basic, large adv, large adv prep, large adv prep dropout, large adv prep dropout resized
+    accuracy = [0.618, 0.615, 0.624, 0.626, 0.644, 0.655, 0.649]
 
     # Plot.
     fig, ax = plt.subplots(figsize=(6, 5))
@@ -50,12 +52,13 @@ def plot_comparison_chart_own_results() -> None:
     plt.savefig("../output/Accuracy_Comparison_of_Classification_models.png", bbox_inches='tight')
     plt.show()
     
+    
 def plot_comparison_chart() -> None:
     with open('data_visualisation/other_paper_results.json') as config_file:  # load other papers' result from json file
         data = json.load(config_file)
     df = pd.DataFrame.from_records(data["CBIS-DDSM"]["B-M"],
                                    columns=['paper', 'accuracy'])  # Filter data by dataset and classification type.
-    new_row = pd.DataFrame({'paper': 'Dissertation Result', 'accuracy': 0.67},
+    new_row = pd.DataFrame({'paper': "Best Model's Result", 'accuracy': 0.655},
                            index=[0])  # Add model result into dataframe to compare.
     df = pd.concat([new_row, df]).reset_index(drop=True)
     df['accuracy'] = pd.to_numeric(df['accuracy'])  # Digitize the accuracy column.
@@ -76,7 +79,47 @@ def plot_comparison_chart() -> None:
     plt.setp(ax.xaxis.get_majorticklabels(), rotation=60, ha='right', rotation_mode='anchor')
     plt.tight_layout()
     plt.ylim(bottom=0, top=1)
+    plt.legend(loc="upper left")
     plt.savefig("../output/comparison_of_best_to_other_papers.png".format(config.dataset, config.model, config.imagesize, title), bbox_inches='tight')
+
     
+def plot_time_comparison_chart(class_or_seg) -> None:
+    if class_or_seg == "class":
+        results = [[2.698611111, 0.073178694], [2.258333333,0.072938144], [22.17638889,0.222199313],
+                    [18.3575,  0.236718213], [29.26861111,  0.639587629], [22.17638889,  0.653247423],
+                    [28.1775,   0.50967354]]
+        indexes = ["Model 1", "Model 2", "Model 3", "Model 4", "Model 5", "Model 6", "Model 7"]
+        df = pd.DataFrame(results, index=indexes, columns = ["Training_time_hours", "Testing_time_seconds"])
+    else:
+        results = [[15.79388889,   2.750859107], [13.41611111,   2.402061856], [16.09111111,  1.793814433],
+                    [16.95277778,  1.738831615], [14.825,  1.766323024]]
+        indexes = ["Model 1", "Model 2", "Model 3", "Model 4", "Model 5"]
+        df = pd.DataFrame(results, index=indexes, columns = ["Training_time_hours", "Testing_time_seconds"])
+        
+    fig = plt.figure() # Create matplotlib figure
+
+    ax = fig.add_subplot() # Create matplotlib axes
+    ax2 = ax.twinx() # Create another axes that shares the same x-axis as ax.
+
+    width = 0.4
+
+    df.Training_time_hours.plot(kind='bar', color='red', ax=ax, width=width, position=1, label='Training time (hours)')
+    df.Testing_time_seconds.plot(kind='bar', color='blue', ax=ax2, width=width, position=0, label='Testing time per image (seconds)')
+    
+    red_patch = mpatches.Patch(color='red', label='Training time (hours)')
+    blue_patch = mpatches.Patch(color='blue', label='Testing time per image (seconds)')
+
+    plt.legend(handles=[red_patch, blue_patch])
+    
+    plt.setp(ax.xaxis.get_majorticklabels(), rotation=40, ha='right', rotation_mode='anchor')
+    plt.tight_layout()
+    ax.set_ylabel('Training time (hours)')
+    ax2.set_ylabel('Testing time per image (seconds)')
+    plt.title("Training and Testing Time Comparison")
+    plt.savefig("../output/comparison_of_training_testing_time_{}.png".format(class_or_seg), bbox_inches='tight')
+        
+
 plot_comparison_chart_own_results()
 plot_comparison_chart()
+plot_time_comparison_chart("class")
+plot_time_comparison_chart("seg")

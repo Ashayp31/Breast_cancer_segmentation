@@ -5,18 +5,22 @@ Variables set by the command line arguments dictating which parts of the program
 # Constants
 RANDOM_SEED = 111
 VGG_IMG_SIZE = {
-    "HEIGHT": 608,
-    "WIDTH": 416
-#     "HEIGHT": 1024,
-#     "WIDTH": 640
+    "HEIGHT": 512,
+    "WIDTH": 512   
+#     "HEIGHT": 1280,
+#     "WIDTH": 864   
+#     "HEIGHT": 512,
+#     "WIDTH": 344   
 }
 VGG_IMG_SIZE_LARGE = {
-    "HEIGHT": 3040,
-    "WIDTH": 2080
+#     "HEIGHT": 2048,
+#     "WIDTH": 2048
+    "HEIGHT": 2048,
+    "WIDTH": 1376
 }
-BATCH_SIZE = 2
-EPOCH_1 = 80
-EPOCH_2 = 70
+BATCH_SIZE = 8
+EPOCH_1 = 70
+EPOCH_2 = 60
 
 # Variables set by command line arguments/flags
 dataset = "mini-MIAS"   # The dataset to use.
@@ -28,4 +32,5 @@ segmodel = "RS50"
 prep = "N"
 pretrained = "imagenet"
 dropout = "N"
-patches = "N"
+patches = "full"
+reg = "N"

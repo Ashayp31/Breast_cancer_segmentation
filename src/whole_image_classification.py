@@ -4,7 +4,7 @@ import time
 import config
 from data_operations.dataset_feed import create_dataset
 from data_operations.data_preprocessing import import_cbisddsm_training_dataset, import_minimias_dataset, \
-    dataset_stratified_split, generate_image_transforms
+    dataset_stratified_split, generate_image_transforms, import_cbisddsm_testing_dataset
 from data_visualisation.output import evaluate
 from model.train_test_model import make_predictions, train_network
 from model.vgg_model import generate_vgg_model
@@ -70,22 +70,30 @@ def main() -> None:
         # Save the model
         model.save("../saved_models/dataset-{}_model-{}_imagesize-{}.h5".format(config.dataset, config.model, config.imagesize))
 
+        print_runtime("Total training time ", round(time.time() - start_time, 2))
+
+        # Evaluate model results.
+        if config.dataset == "mini-MIAS":
+            y_pred = make_predictions(model, X_val)
+            evaluate(y_val, y_pred, l_e, config.dataset, 'N-B-M')
+        elif config.dataset == "CBIS-DDSM":
+            y_pred = make_predictions(model, dataset_val)
+            evaluate(y_val, y_pred, l_e, config.dataset, 'B-M')
+            
+            
     elif config.run_mode == "test":
-        model = load_model("../saved_models/dataset-{}_model-{}_imagesize-{}.h5".format(config.dataset, config.model, config.imagesize))
+        model = load_model("../saved_models/classification/classification_basic_small.h5")
 
-    # Evaluate model results.
-    if config.dataset == "mini-MIAS":
-        y_pred = make_predictions(model, X_val)
-        evaluate(y_val, y_pred, l_e, config.dataset, 'N-B-M')
-    elif config.dataset == "CBIS-DDSM":
-        y_pred = make_predictions(model, dataset_val)
-        evaluate(y_val, y_pred, l_e, config.dataset, 'B-M')
+        images, labels = import_cbisddsm_testing_dataset(l_e)
+        dataset_test = create_dataset(images, labels)
 
-    # Print the prediction
-#     print(y_pred)
+        testing_start_time = time.time()
 
-    # Print training runtime.
-    print_runtime("Total", round(time.time() - start_time, 2))
+        y_pred = make_predictions(model, dataset_test)
+        print_runtime("Total testing time ", round(time.time() - testing_start_time, 2))
+
+        evaluate(labels, y_pred, l_e, config.dataset, 'B-M')
+
 
 
 def parse_command_line_arguments() -> None:
@@ -95,13 +103,11 @@ def parse_command_line_arguments() -> None:
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--dataset",
-                        default="mini-MIAS",
-                        required=True,
+                        default="CBIS-DDSM",
                         help="The dataset to use. Must be either 'mini-MIAS' or 'CBIS-DDMS'."
                         )
     parser.add_argument("-m", "--model",
                         default="basic",
-                        required=True,
                         help="The model to use. Must be either 'basic' or 'advanced'."
                         )
     parser.add_argument("-r", "--runmode",
@@ -117,6 +123,31 @@ def parse_command_line_arguments() -> None:
                         action="store_true",
                         help="Verbose mode: include this flag additional print statements for debugging purposes."
                         )
+    parser.add_argument("-s", "--segmodel",
+                        default="RS50",
+                        help="Segmentation model to be used."
+                        )
+    parser.add_argument("-p", "--prep",
+                        default="N",
+                        help="Preprocessing of images"
+                        )
+    parser.add_argument("-t", "--pretrained",
+                        default="imagenet",
+                        help="pretrained weights for the model. Use none if to use no pretrained weights"
+                        )
+    parser.add_argument("-do", "--dropout",
+                        default="N",
+                        help="Whether to include dropout in the network, change to Y to include. Only in the contracting layers"
+                        )
+    parser.add_argument("-pa", "--patches",
+                        default="full",
+                        help="Whether to train a on image patches or whole image, or incremental upsizing done with full, patch, "
+                        "or inc"
+                        )
+    parser.add_argument("-reg", "--reg",
+                        default="N",
+                        help="Whether to apply regularisation, deafault as N, change to Y for applying regularisation"
+                        )
 
     args = parser.parse_args()
     config.dataset = args.dataset
@@ -124,7 +155,12 @@ def parse_command_line_arguments() -> None:
     config.run_mode = args.runmode
     config.imagesize = args.imagesize
     config.verbose_mode = args.verbose
-    
+    config.segmodel = args.segmodel
+    config.prep = args.prep
+    config.pretrained = args.pretrained
+    config.dropout = args.dropout
+    config.patches = args.patches
+    config.reg = args.reg
 
 if __name__ == '__main__':
     main()

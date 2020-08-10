@@ -58,7 +58,7 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
                            validation_data=val_x,
                            epochs=epochs1,
                            callbacks=[
-                               EarlyStopping(monitor='val_loss', patience=8, restore_best_weights=True),
+                               EarlyStopping(monitor='val_binary_accuracy', patience=8, restore_best_weights=True),
                                ReduceLROnPlateau(patience=6)]
                            )
 
@@ -100,7 +100,7 @@ def train_network(model, train_x, train_y, val_x, val_y, batch_s, epochs1, epoch
                            validation_data=val_x,
                            epochs=epochs2,
                            callbacks=[
-                               EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True),
+                               EarlyStopping(monitor='val_binary_accuracy', patience=10, restore_best_weights=True),
                                ReduceLROnPlateau(patience=6)]
                            )
 
