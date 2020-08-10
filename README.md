@@ -6,7 +6,7 @@ Clone the repository:
 
 ```
 cd ~/Projects
-git clone https://github.com/Adamouization/Breast-Cancer-Detection-Code
+git clone https://github.com/Ashayp31/Breast_cancer_segmentation
 ```
 
 Create a repository that will be used to install Tensorflow 2 with CUDA 10 for Python and activate the virtual environment for GPU usage:
