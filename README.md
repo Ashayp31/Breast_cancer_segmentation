@@ -2,6 +2,17 @@
 
 ## Usage on a GPU lab machine
 
+```
+Thesis supervisor(s)
+Dr David Harris-Birtill; Lewis McMillan
+
+This is the first public release of the code written for the "Breast Cancer Detection and Segmentation in Mammograms using Deep Learning Techniques" dissertation, developed from 24/06/2020 to 10/08/2020.
+
+The project is part of the MSc Artificial Intelligence at the University of St Andrews.
+
+The project's supervisor is Dr David Harris-Birtill and co-supervisor is Lewis McMillan.
+```
+
 Clone the repository:
 
 ```
