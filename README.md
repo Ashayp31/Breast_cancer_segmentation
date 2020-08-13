@@ -129,7 +129,7 @@ mkdir normal_cases
 python3 ../../../src/dataset_processing_scripts/mini-MIAS-initial-pre-processing.py
 ```
 
-### DDSM and CBIS-DDSM datasets
+### CBIS-DDSM dataset
 
 These datasets are very large (exceeding 160GB) and more complex than the mini-MIAS dataset to use. Downloading and pre-processing them will therefore not be covered by this README. 
 
