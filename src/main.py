@@ -1,3 +1,6 @@
+# ========================================================================================================================================================
+## NOTE THIS FILE IS NO LONGER IN USE. THE MAIN FILE FOR CLASSIFICATION IS WHOLE_IMAGE_CLASSIFICATION.PY AND THE MAIN FILE FOR SEGMENTATION IS SEGMENTATION.PY ## 
+# ========================================================================================================================================================
 import argparse
 import time
 
