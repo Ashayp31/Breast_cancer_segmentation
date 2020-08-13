@@ -41,10 +41,10 @@ mkdir output
 mkdir saved_models
 ```
 
-`cd` into the `src` directory and run the code:
+`cd` into the `src` directory and run the Classification Code with:
 
 ```
-python main.py [-h] -d DATASET -m MODEL [-r RUNMODE] [-i IMAGESIZE] [-v]
+python whole_image_classification.py [-h] -d DATASET -m MODEL [-r RUNMODE] [-i IMAGESIZE] [-p PREPROCESS] [-do DROPOUT] [-v] [-t PRETRAINED]
 ```
 
 where:
@@ -53,6 +53,9 @@ where:
 * `MODEL` is the model to use. Must be either `basic` or `advanced`.
 * `RUNMODE` is the mode to run in (`train` or `test`). Default value is `train`.
 * `IMAGESIZE` is the image size to feed into the CNN model (`small` - 512x512px; or `large` - 2048x2048px). Default value is `small`.
+* `PREPROCESS` is whether you would like images to be preprocessed via image enhancemend e.g. histogram equalisation and gaussian blur. The options are `Y` for yes or `N` for no. Default is No.
+* `DROPOUT` This is only valid if you are training a model. This will create a model that has dropout layers in the fully connected portion of the network. The options are `Y` for yes or `N` for no. Default is No.
+* `PRETRAINED` This is only valid if you are training a model. This will create a model that is either pretrained on ImageNet or a model with random weight initialisation. The options are `imagenet` or `N` meaning random weight initialisation. The default is pretrained on imagenet.
 * `-v` is a flag controlling verbose mode, which prints additional statements for debugging purposes.
 
 ## Dataset usage
