@@ -106,15 +106,12 @@ def main() -> None:
         else:
             y_pred = make_predictions(model, dataset_test)
             print_runtime("Total testing time", round(time.time() - training_start_time, 2))
-#             evaluate_segmentation(dataset_test, y_pred, threshold = 0.5)
             visualise_examples(dataset_test, None, y_pred, threshold = 0.5)
 
     
 
 
            
-    # Print training runtime.
-
 
 def parse_command_line_arguments() -> None:
     """
